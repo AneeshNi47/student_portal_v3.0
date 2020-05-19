@@ -1,0 +1,308 @@
+{{extend 'layout.html'}}
+
+<script type="text/javascript">
+    function blocker_updateMG(value) {
+        var toggle_id = $(value).data('id');
+        var checkBox = document.getElementById(toggle_id);
+        var user_id = $(value).data('id');
+        if (checkBox.checked == true){
+            var html_blockstat = "blocked";}
+        else{
+            var html_blockstat = "";}
+        $.ajax({
+            type: "GET",
+            url: '/init/settings/Manag_blocked_login',
+            data: { block_id: user_id,
+                    block_status: html_blockstat,
+                    },
+            success:function(data){
+                 window.location.reload(true);
+            },
+            error: function(data){
+                console.log("error");
+                console.log(error_data);} });
+            }
+ </script>
+
+<script type="text/javascript">
+    function blocker_updateEX(value) {
+        var toggle_id = $(value).data('id');
+        var checkBox = document.getElementById(toggle_id);
+        var user_id = $(value).data('id');
+        if (checkBox.checked == true){
+            var html_blockstat = "blocked";}
+        else{
+            var html_blockstat = "";}
+        $.ajax({
+            type: "GET",
+            url: '/init/settings/Exam_blocked_login',
+            data: { block_id: user_id,
+                    block_status: html_blockstat,
+                    },
+            success:function(data){
+                 window.location.reload(true);
+            },
+            error: function(data){
+                console.log("error");
+                console.log(error_data);} });
+            }
+ </script>
+
+<!----------------------------------------------------------------------------------------------------->
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Account Settings</h2>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <ul class="nav nav-tabs bar_tabs"  id="myTab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="admin_department" data-toggle="tab" href="#home1" role="tab" aria-controls="home" aria-selected="true">Admin Department</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="examiner_department" data-toggle="tab" href="#profile1" role="tab" aria-controls="profile" aria-selected="false">Exam Department</a>
+                </li>
+            </ul>
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade show active" id="home1" role="tabpanel" aria-labelledby="admin_department">
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li><a data-toggle="modal" data-target="#manager_create"><i class="fa fa-plus"></i></a></li>
+                        <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                        <li><a class="close-link"><i class="fa fa-close"></i></a></li>
+                    </ul>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box table-responsive">
+                                    <p class="text-muted font-13 m-b-30">
+                                        The table displays all registered Administrators with the systems.
+                                    </p>
+                                    <table id="datatable-responsive" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Office ID</th>
+                                                <th>First name</th>
+                                                <th>Last name</th>
+                                                <th>Email</th>
+                                                <th>Contact</th>
+                                                <th>Designation</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {{for manager in managers:}}
+                                                <tr>
+                                                    {{user = db(db.auth_user.id == manager.Mg_Appid).select()}}
+                                                    <td>{{=manager.Mg_officeID}}</td>
+                                                    <td>{{=user[0].first_name}}</td>
+                                                    <td>{{=user[0].last_name}}</td>
+                                                    <td>{{=manager.Email}}</td>
+                                                    <td>{{=manager.Contact}}</td>
+                                                    <td>{{=manager.Designation}}</td>
+                                                    <td>
+                                                        <label class="switch">
+                                                            {{if (user[0].registration_key== "") | (user[0].registration_key== None):}}
+                                                                <input id="{{=manager.Mg_Appid}}" type="checkbox" class="js-switch" onclick="blocker_updateMG(this)" data-id="{{=manager.Mg_Appid}}">
+                                                            {{elif user[0].registration_key=="blocked":}}
+                                                                <input id="{{=manager.Mg_Appid}}" type="checkbox" class="js-switch" checked onclick="blocker_updateMG(this)" data-id="{{=manager.Mg_Appid}}">
+                                                            {{pass}}
+                                                        </label>
+                                                    </td>
+                                                </tr>
+                                            {{pass}}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="profile1" role="tabpanel" aria-labelledby="examiner_department">
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li><a data-toggle="modal" data-target="#examiner_create"><i class="fa fa-plus"></i></a></li>
+                        <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                        <li><a class="close-link"><i class="fa fa-close"></i></a></li>
+                    </ul>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="card-box table-responsive">
+                                    <p class="text-muted font-13 m-b-30">
+                                        The table displays all registered Examiners with the systems.
+                                    </p>
+                                    <table id="datatable-responsive" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Office ID</th>
+                                                <th>First name</th>
+                                                <th>Last name</th>
+                                                <th>Email</th>
+                                                <th>Contact</th>
+                                                <th>Designation</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {{for examiner in examiners:}}
+                                                <tr>
+                                                    {{user = db(db.auth_user.id == examiner.Ex_Appid).select()}}
+                                                    <td>{{=examiner.Ex_officeID}}</td>
+                                                    <td>{{=user[0].first_name}}</td>
+                                                    <td>{{=user[0].last_name}}</td>
+                                                    <td>{{=examiner.Email}}</td>
+                                                    <td>{{=examiner.Contact}}</td>
+                                                    <td>{{=examiner.Designation}}</td>
+                                                    <td>
+                                                        <label class="switch">
+                                                            {{if (user[0].registration_key== "") | (user[0].registration_key== None):}}
+                                                                <input id="{{=examiner.Ex_Appid}}" type="checkbox" class="js-switch" onclick="blocker_updateEX(this)" data-id="{{=examiner.Ex_Appid}}">
+                                                            {{elif user[0].registration_key=="blocked":}}
+                                                                <input id="{{=examiner.Ex_Appid}}" type="checkbox" class="js-switch" checked onclick="blocker_updateEX(this)" data-id="{{=examiner.Ex_Appid}}">
+                                                            {{pass}}
+                                                        </label>
+                                                    </td>
+                                                </tr>
+                                            {{pass}}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!----------------------------------------------------------------------------------------------------->
+
+
+            <div class="modal fade bs-example-modal-lg" id="manager_create" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                          <h4 class="modal-title" id="myModalLabel">Add New Admin</h4>
+                          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+
+							<form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" method="get" action="/init/settings/add_manager">
+								<div class="item form-group">
+									<label class="col-form-label col-md-3 col-sm-3 label-align" for="first-name">First Name <span class="required">*</span></label>
+									<div class="col-md-6 col-sm-6 ">
+										<input type="text" name="first_name" id="first-name" required="required" class="form-control ">
+									</div>
+								</div>
+								<div class="item form-group">
+									<label class="col-form-label col-md-3 col-sm-3 label-align" for="last-name">Last Name <span class="required">*</span></label>
+									<div class="col-md-6 col-sm-6 ">
+										<input type="text" id="last_name" name="last_name" required="required" class="form-control">
+									</div>
+								</div>
+								<div class="item form-group">
+									<label class="col-form-label col-md-3 col-sm-3 label-align" for="officeID">Office ID <span class="required">*</span></label>
+									<div class="col-md-6 col-sm-6 ">
+										<input type="text" id="officeID" name="officeID" required="required" class="form-control">
+									</div>
+								</div>
+                                <div class="item form-group">
+                                    <label class="col-form-label col-md-3 col-sm-3 label-align" for="desig">Designation <span class="required">*</span></label>
+                                    <div class="col-md-6 col-sm-6 ">
+                                        <input type="text" id="desig" name="desig" required="required" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="item form-group">
+                                    <label class="col-form-label col-md-3 col-sm-3 label-align" for="email">Email <span class="required">*</span></label>
+                                    <div class="col-md-6 col-sm-6 ">
+                                        <input type="email" id="email" name="email" required="required" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="item form-group">
+                                    <label class="col-form-label col-md-3 col-sm-3 label-align" for="contactNo">Contact No. <span class="required">*</span></label>
+                                    <div class="col-md-6 col-sm-6 ">
+                                        <input type="text" id="contactNo" name="contactNo" required="required" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="ln_solid"></div>
+                                <div class="item form-group">
+                                    <div class="col-md-6 col-sm-6 offset-md-3">
+                                        <button type="submit" class="btn btn-success">Submit</button>
+                                    </div>
+                                </div>
+                            </form>
+                            <p class="text-muted font-13 m-b-30">
+                                Managment Login Account will be created with Above provided Email Id and Default password.
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade bs-example-modal-lg" id="examiner_create" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                          <h4 class="modal-title" id="myModalLabel">Add New Examiner</h4>
+                          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+
+							<form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" method="get" action="/init/settings/add_examiner">
+								<div class="item form-group">
+									<label class="col-form-label col-md-3 col-sm-3 label-align" for="first-name">First Name <span class="required">*</span></label>
+									<div class="col-md-6 col-sm-6 ">
+										<input type="text" name="first_name" id="first-name" required="required" class="form-control ">
+									</div>
+								</div>
+								<div class="item form-group">
+									<label class="col-form-label col-md-3 col-sm-3 label-align" for="last-name">Last Name <span class="required">*</span></label>
+									<div class="col-md-6 col-sm-6 ">
+										<input type="text" id="last_name" name="last_name" required="required" class="form-control">
+									</div>
+								</div>
+								<div class="item form-group">
+									<label class="col-form-label col-md-3 col-sm-3 label-align" for="officeID">Office ID <span class="required">*</span></label>
+									<div class="col-md-6 col-sm-6 ">
+										<input type="text" id="officeID" name="officeID" required="required" class="form-control">
+									</div>
+								</div>
+                                <div class="item form-group">
+                                    <label class="col-form-label col-md-3 col-sm-3 label-align" for="desig">Designation <span class="required">*</span></label>
+                                    <div class="col-md-6 col-sm-6 ">
+                                        <input type="text" id="desig" name="desig" required="required" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="item form-group">
+                                    <label class="col-form-label col-md-3 col-sm-3 label-align" for="email">Email <span class="required">*</span></label>
+                                    <div class="col-md-6 col-sm-6 ">
+                                        <input type="email" id="email" name="email" required="required" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="item form-group">
+                                    <label class="col-form-label col-md-3 col-sm-3 label-align" for="contactNo">Contact No. <span class="required">*</span></label>
+                                    <div class="col-md-6 col-sm-6 ">
+                                        <input type="text" id="contactNo" name="contactNo" required="required" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="ln_solid"></div>
+                                <div class="item form-group">
+                                    <div class="col-md-6 col-sm-6 offset-md-3">
+                                        <button type="submit" class="btn btn-success">Submit</button>
+                                    </div>
+                                </div>
+                            </form>
+                            <p class="text-muted font-13 m-b-30">
+                                Management Login Account will be created with Above provided Email Id and Default password.
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+            </div>

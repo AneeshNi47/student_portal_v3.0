@@ -1,0 +1,304 @@
+{{extend 'layout.html'}}
+    <!---Select2 custom style and js file (dropdown select file)--->
+      <link href="{{=URL('static','js/dist/css/select2.min.css')}}" rel="stylesheet" />
+<script>
+    $(document).ready(function(){
+  // Initialize select2
+  $("#student_id").select2({
+        dropdownParent: $('#student_addassignment .modal-body')
+        });
+    });
+    $.fn.modal.Constructor.prototype._enforceFocus = function() {};
+</script>
+
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2><i class="fa fa-bars"></i> {{=batch_name}} <small> Assignments </small></h2>
+            <ul class="nav navbar-right panel_toolbox">
+                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                <li><a class="close-link"><i class="fa fa-close"></i></a></li>
+            </ul>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <ul class="nav nav-tabs bar_tabs"  id="myTab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="batch_Assignments" data-toggle="tab" href="#home1" role="tab" aria-controls="home" aria-selected="true">Batch Assignments</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="student_Assignments" data-toggle="tab" href="#profile1" role="tab" aria-controls="profile" aria-selected="false">Student Assignments</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="Submissions" data-toggle="tab" href="#profile2" role="tab" aria-controls="profile" aria-selected="false">Submissions</a>
+                </li>
+            </ul>
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade show active" id="home1" role="tabpanel" aria-labelledby="Batch Assignments">
+					<div class="x_content">
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="card-box table-responsive">
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <h6>The table displays Subject wise Assignments for {{=batch_name}}.</h6>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <ul class="nav navbar-right panel_toolbox">
+                                                <li><a data-toggle="modal" data-target="#batch_addassignment"><i class="fa fa-plus"></i></a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+									<table id="datatable-responsive" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+										<thead>
+											<tr>
+												<th>Subject</th>
+												<th>Assignment Title</th>
+												<th>Submission Date</th>
+												<th>Original Content</th>
+												<th>Created By</th>
+                                                <th>Created On</th>
+                                                <th>Action</th>
+											</tr>
+										</thead>
+										<tbody>
+                                    {{ if Assignments != None:}}
+											{{for Assignment in Assignments:}}
+												<tr>
+													<td>{{=db(db.Subjects.id == Assignment.subject_assign).select(db.Subjects.Subject_Name)[0].Subject_Name}}</td>
+													<td>{{=Assignment.Assignemnt_title}}</td>
+													<td>{{=Assignment.FinalSubmission_date}}</td>
+													<td><a href="{{=URL(f='download', args =Assignment.Origianl_content)}}">{{=Assignment.Assignemnt_title}}</a> </td>
+													<td>{{=db(db.auth_user.id == Assignment.created_by).select(db.auth_user.first_name)[0].first_name}}</td>
+													<td>{{=Assignment.created_on}}</td>
+													<td><a href="{{=URL('assignments','delete_assignments',vars=dict(assing_id=Assignment.id,batch_name=batch_name,batch_id=batch_id))}}"><i class="fa fa-trash-o" aria-hidden="true"></i></a></td>
+												</tr>
+											{{pass}}
+                                    {{pass}}
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+					</div>
+                </div>
+                <div class="tab-pane fade" id="profile1" role="tabpanel" aria-labelledby="Student Assignments">
+                     <div class="x_content">
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="card-box table-responsive">
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <h6>The table displays student wise Assignments for {{=batch_name}}.</h6>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <ul class="nav navbar-right panel_toolbox">
+                                                <li><a data-toggle="modal" data-target="#student_addassignment"><i class="fa fa-plus"></i></a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+									<table id="datatable-responsive" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+										<thead>
+											<tr>
+												<th>Name</th>
+												<th>Assignment Title</th>
+												<th>Original Content</th>
+                                                <th>Submission Date</th>
+												<th>Created By</th>
+                                                <th>Created On</th>
+                                                <th>Action</th>
+											</tr>
+										</thead>
+										<tbody>
+											{{for student in students:}}
+                                                {{if db(db.Assignments.student_id == student.id).select():}}
+                                                    {{student_assigns = db(db.Assignments.student_id == student.id).select()}}
+                                                    {{for student_assign in student_assigns:}}
+												<tr>
+													<td>{{=student.F_Name}} {{=student.L_Name}}</td>
+													<td>{{=student_assign.Assignemnt_title}}</td>
+													<td><a href="{{=URL(f='download', args = student_assign.Origianl_content)}}">{{=student_assign.Assignemnt_title}}</a> </td>
+                                                    <td>{{=student_assign.FinalSubmission_date}}</td>
+													<td>{{=db(db.auth_user.id == student_assign.created_by).select(db.auth_user.first_name)[0].first_name}}</td>
+													<td>{{=student_assign.created_on}}</td>
+													<td><a href="{{=URL('assignments','delete_assignments',vars=dict(assing_id=Assignment.id,batch_name=batch_name,batch_id=batch_id))}}"><i class="fa fa-trash-o" aria-hidden="true"></i></a></td>
+												</tr>
+                                                {{pass}}
+                                                {{pass}}
+											{{pass}}
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="profile2" role="tabpanel" aria-labelledby="Submittals">
+                     <div class="x_content">
+						<div class="row">
+							<div class="col-sm-12">
+								<div class="card-box table-responsive">
+                                    <h6>Assignments submitted by students of {{=batch_name}} batch.</h6>
+									<table id="datatable-responsive" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+										<thead>
+											<tr>
+												<th>Name</th>
+												<th>Subject</th>
+												<th>Assignment Title</th>
+												<th>Submitted Content</th>
+                                                <th>Submitted Date</th>
+											</tr>
+										</thead>
+										<tbody>
+											{{for Assignment in Assignments:}}
+                                                {{for submital in submitals:}}
+                                                    {{if submital.Assignemnt_title == Assignment.id:}}
+												    <tr>
+                                                        {{student = db(db.Student.id == submital.Student_ID).select()}}
+                                                        {{subject = db(db.Assignments.id == submital.Assignemnt_title).select(db.Assignments.subject_assign)[0].subject_assign}}
+													    <td>{{=student[0].F_Name}} {{=student[0].L_Name}}</td>
+													    <td>{{=db(db.Subjects.id == subject).select(db.Subjects.Subject_Name)[0].Subject_Name}}</td>
+                                                        <td>{{=db(db.Assignments.id == submital.Assignemnt_title).select(db.Assignments.Assignemnt_title)[0].Assignemnt_title}}</td>
+													    <td><a href="{{=URL(f='download', args = submital.Assignment_file)}}"><i class="fas fa-file-alt"></i></a></td>
+                                                        <td>{{=submital.created_on}}</td>
+												    </tr>
+                                                    {{pass}}
+                                                {{pass}}
+											{{pass}}
+										</tbody>
+									</table>
+								</div>
+							</div>
+						</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bs-example-modal-lg" id="batch_addassignment" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel2">Add Assignment to Batch</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <form id="demo-form2" data-parsley-validate enctype='multipart/form-data' class="form-horizontal form-label-left" method="post" action="/init/assignments/add_BAassignments">
+                            <input type="hidden"  name="batch_id" value="{{=batch_id}}">
+                            <input type="hidden"  name="batch_name" value="{{=batch_name}}">
+                            <div class="item form-group">
+                                <label class="col-form-label col-md-3 col-sm-3 label-align" for="assign_title">Asignments Title <span class="required">*</span></label>
+                                <div class="col-md-6 col-sm-6 ">
+                                    <input type="text" name="assign_title" id="assign_title" required="required" class="form-control ">
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                <label class="col-form-label col-md-3 col-sm-3 label-align">Subjects</label>
+                                <div class="col-md-6 col-sm-6 ">
+                                    <select id="assign_sub" name="assign_sub" class="form-control">
+                                        {{for subject in subjects:}}
+                                            <option value="{{=subject.id}}">{{=subject.Subject_Name}}</option>
+                                        {{pass}}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                <label class="col-form-label col-md-3 col-sm-3 label-align">Date Of Submission <span class="required">*</span>
+                                </label>
+                                <div class="col-md-6 col-sm-6 ">
+                                    <input id="assign_date" class="date-picker form-control" name="assign_date" required="required" type="date">
+                                </div>
+                            </div>
+
+                            <div class="item form-group">
+                                <label class="col-form-label col-md-3 col-sm-3 label-align">Assignment File <span class="required">*</span>
+                                </label>
+                                <div class="col-md-6 col-sm-6 ">
+                                    <input id="assign_content" class="date-picker form-control" value="assign_content" name="assign_content" required="required" type="file">
+                                </div>
+                            </div>
+
+                            <div class="item form-group">
+                                <div class="col-md-6 col-sm-6 offset-md-3">
+                                    <button type="submit" class="btn btn-success">Submit</button>
+                                </div>
+                            </div>
+
+                        </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bs-example-modal-lg" id="student_addassignment" style="overflow:hidden;" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel2">Add Assignment to Student</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <form id="demo-form2" data-parsley-validate enctype='multipart/form-data' class="form-horizontal form-label-left" method="post" action="/init/assignments/add_STassignments">
+                            <input type="hidden"  name="batch_id" value="{{=batch_id}}">
+                            <input type="hidden"  name="batch_name" value="{{=batch_name}}">
+                            <div class="item form-group">
+                                <label class="col-form-label col-md-3 col-sm-3 label-align" for="assign_title">Asignments Title <span class="required">*</span></label>
+                                <div class="col-md-6 col-sm-6 ">
+                                    <input type="text" name="assign_title" id="assign_title" required="required" class="form-control ">
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                <label class="col-form-label col-md-3 col-sm-3 label-align">Student</label>
+                                <div class="col-md-6 col-sm-6 ">
+                                    <select id="student_id" name="student_id" class="form-control">
+                                        {{for student in students:}}
+                                            <option value="{{=student.id}}">{{=student.Student_colgID}} {{=student.F_Name}} {{=student.F_Name}}</option>
+                                        {{pass}}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                <label class="col-form-label col-md-3 col-sm-3 label-align">Subjects</label>
+                                <div class="col-md-6 col-sm-6 ">
+                                    <select id="assign_sub" name="assign_sub" class="form-control">
+                                        {{for subject in subjects:}}
+                                            <option value="{{=subject.id}}">{{=subject.Subject_Name}}</option>
+                                        {{pass}}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                <label class="col-form-label col-md-3 col-sm-3 label-align">Date Of Submission <span class="required">*</span>
+                                </label>
+                                <div class="col-md-6 col-sm-6 ">
+                                    <input id="assign_date" class="date-picker form-control" name="assign_date" required="required" type="date">
+                                </div>
+                            </div>
+
+                            <div class="item form-group">
+                                <label class="col-form-label col-md-3 col-sm-3 label-align">Assignment File <span class="required">*</span>
+                                </label>
+                                <div class="col-md-6 col-sm-6 ">
+                                    <input id="assign_content" class="date-picker form-control" value="assign_content" name="assign_content" required="required" type="file">
+                                </div>
+                            </div>
+
+                            <div class="item form-group">
+                                <div class="col-md-6 col-sm-6 offset-md-3">
+                                    <button type="submit" class="btn btn-success">Submit</button>
+                                </div>
+                            </div>
+
+                        </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+ <a type="button" href="{{=URL('assignments', 'index')}}" class="btn btn-round btn-info">Back</a>
+
+    <!--Select2-->
+    <script src="{{=URL('static','js/dist/js/select2.full.min.js')}}"></script>

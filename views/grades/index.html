@@ -1,0 +1,101 @@
+{{extend 'layout.html'}}
+<!--trial new change-->
+{{if auth.has_membership(1) | auth.has_membership(2):}}
+<div class="">
+    <div class="page-title">
+        <div class="title_left">
+            <h3>Evaluation System</h3>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+
+    <div class="">
+<!-----------------------------Start of Batch Table & Modal---------------------------------------->
+        <div class="col-md-12 col-sm-12  ">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2> Batch <small>Registered Batches</small></h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                        <li><a class="close-link"><i class="fa fa-close"></i></a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Batch Title</th>
+                                <th>Course</th>
+                                <th>Batch Timings</th>
+                                <th>Specialization</th>
+                                <th>Location</th>
+                                <th>Students</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{for batch in batches:}}
+                                <tr>
+                                    {{selectedBatch = batch.Batch_title}}
+                                    <th scope="row">{{=batch.id}}</th>
+                                    <td>{{=batch.Batch_title}}</td>
+                                    <td>{{=db(db.Course.id == batch.Batch_Course).select(db.Course.Course_Name)[0].Course_Name}}</td>
+                                    <td>{{=batch.Batch_type}}</td>
+                                    <td>{{=db(db.Specialization.id == batch.Batch_Specialisation).select(db.Specialization.specialization_Name)[0].specialization_Name}}</td>
+                                    <td>{{=db(db.C_Location.id == batch.Batch_Location).select(db.C_Location.location_Name)[0].location_Name}}</td>
+                                    <td><a href="{{=URL('grades','student_grade',vars=dict(batch_name=batch.Batch_title,batch_id=batch.id,batch_timing=batch.Batch_type))}}" id="view_modalBtn"><i class="fa fa-users fa-2x"></i></a></td>
+                                </tr>
+                            {{pass}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+ <!-----------------------------End of Batch Table-------------------------------------------->
+    </div>
+</div>
+{{pass}}
+
+{{if auth.has_membership(3):}}
+<div class="col-md-12 col-sm-12">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Grades</h2>
+            <ul class="nav navbar-right panel_toolbox">
+                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                <li><a class="close-link"><i class="fa fa-close"></i></a></li>
+            </ul>
+            <div class="clearfix"></div>
+        </div>
+        {{for semester in semester:}}
+            <div class="x_content">
+                <table id="datatable-buttons" class="table">
+                <title>-{{=student[0].F_Name}} {{=student[0].L_Name}} Grades</title>
+                    <thead>
+                         <tr>
+                            <th>Subject</th>
+                            <th>Marks</th>
+                            <th>Grade</th>
+                            <th>Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{for grade in grades:}}
+                            <tr>
+                                {{if grade.Semester_id == semester.id:}}
+                                    <td>{{=db(db.Subjects.id == grade.Subject).select(db.Subjects.Subject_Name)[0].Subject_Name}}</td>
+                                    <td>{{=grade.Mark}}</td>
+                                    <td>{{=grade.Grade}}</td>
+                                    <td>{{=grade.Remarks}}</td>
+                                {{pass}}
+                            </tr>
+                        {{pass}}
+                    </tbody>
+                </table>
+            </div>
+        {{pass}}
+    </div>
+</div>
+{{pass}}

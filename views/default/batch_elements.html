@@ -1,0 +1,412 @@
+{{extend 'layout.html'}}
+
+<script type="text/javascript">
+    function modal_value(value) {
+        var batchId = $(value).data('id');
+        $(".modal-body #batchId").val( batchId );
+        $('#edit_batch').modal('show');
+    }
+</script>
+
+
+<!--trial new change-->
+<div class="">
+    <div class="page-title">
+        <div class="title_left">
+            <h3>Batch Elements</h3>
+        </div>
+    </div>
+
+    <div class="clearfix"></div>
+
+    <div class="">
+<!-----------------------------Start of Batch Table & Modal---------------------------------------->
+        <div class="col-md-12 col-sm-12  ">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2> Batch <small>Registered Batches</small></h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li><a data-toggle="modal" data-target="#batch_create"><i class="fa fa-plus"></i></a></li>
+                        <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                        <li><a class="close-link"><i class="fa fa-close"></i></a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <table id="datatable" class="table table-striped table-bordered" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Batch Title</th>
+                                <th>Course</th>
+                                <th>Batch Timings</th>
+                                <th>Specialization</th>
+                                <th>Location</th>
+                                <th>Subjects</th>
+                                <th>Students</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{for batch in batches:}}
+                                <tr>
+                                    {{selectedBatch = batch.Batch_title}}
+                                    <th scope="row">{{=batch.id}}</th>
+                                    <td><a onclick="modal_value(this)" data-toggle="modal" data-id="{{=batch.id}}" data-toggle="modal" class="identifyingClass" href="#edit_batch" >{{=batch.Batch_title}}</a></td>
+                                    <td>{{=db(db.Course.id == batch.Batch_Course).select(db.Course.Course_Name)[0].Course_Name}}</td>
+                                    <td>{{=batch.Batch_type}}</td>
+                                    <td>{{=db(db.Specialization.id == batch.Batch_Specialisation).select(db.Specialization.specialization_Name)[0].specialization_Name}}</td>
+                                    <td>{{=db(db.C_Location.id == batch.Batch_Location).select(db.C_Location.location_Name)[0].location_Name}}</td>
+                                    <td><a href="{{=URL('default','subbatch_view',vars=dict(batch_name=batch.Batch_title,batch_id=batch.id,batch_timing=batch.Batch_type))}}" id="view_modalBtn"><i class="fa fa-book fa-2x"></i></a></td>
+                                    <td><a href="{{=URL('default','batch_view',vars=dict(batch_name=batch.Batch_title,batch_id=batch.id,batch_timing=batch.Batch_type))}}" id="view_modalBtn"><i class="fa fa-users fa-2x"></i></a></td>
+                                    <td>
+                                        {{if not db(db.Student.Batch == batch.id).select():}}
+                                            <a href="{{=URL('default','del_batch',vars=dict(batch_id=batch.id))}}" id="view_modalBtn">
+                                                <i class="fa fa-trash" aria-hidden="true"></i>
+                                            </a>
+                                        {{else:}}
+                                            <a data-toggle="tooltip" data-placement="left" title="Remove Students to delete batch" id="view_modalBtn">
+                                                <i class="fas fa-minus"></i>
+                                            </a>
+                                        {{pass}}
+                                    </td>
+                                </tr>
+                            {{pass}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade bs-example-modal-lg" id="batch_create" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="myModalLabel2">Create Batch</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" method="get" action="/init/default/add_batch">
+
+                            <div class="item form-group">
+                                <label class="col-form-label col-md-3 col-sm-3 label-align" for="batch_title">Batch Title <span class="required">*</span></label>
+                                <div class="col-md-6 col-sm-6 ">
+                                    <input type="text" name="batch_title" id="batch_title" required="required" class="form-control ">
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                <label class="col-form-label col-md-3 col-sm-3 label-align">Course</label>
+                                <div class="col-md-6 col-sm-6 ">
+                                    <select id="courses" name="course" class="form-control">
+                                        {{for course in courses:}}
+                                            <option value="{{=course.id}}">{{=course.Course_Name}}</option>
+                                        {{pass}}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                <label class="col-form-label col-md-3 col-sm-3 label-align">Class Type</label>
+                                <div class="col-md-6 col-sm-6 ">
+                                    <div id="duration" class="btn-group btn-group-toggle" data-toggle="buttons">
+                                        <label class="btn btn-primary active">
+                                            <input type="radio" name="duration" value="Monthly" checked> &nbsp; Monthly &nbsp;
+                                        </label>
+                                        <label class="btn btn-primary">
+                                            <input type="radio" name="duration" value="Weekly"> Weekly
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                <label class="col-form-label col-md-3 col-sm-3 label-align">Location</label>
+                                <div class="col-md-6 col-sm-6 ">
+                                    <select id="locations" name="location" class="form-control">
+                                        {{for location in locations:}}
+                                            <option value="{{=location.id}}">{{=location.location_Name}}</option>
+                                        {{pass}}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                <label class="col-form-label col-md-3 col-sm-3 label-align">Specializations</label>
+                                <div class="col-md-6 col-sm-6 ">
+                                    <select  id="specialise" name="specialise" class="form-control">
+                                        {{for specialization in specializations:}}
+                                            <option value="{{=specialization.id}}">{{=specialization.specialization_Name}}</option>
+                                        {{pass}}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                <div class="col-md-6 col-sm-6 offset-md-3">
+                                    <button type="submit" class="btn btn-success">Submit</button>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade bs-example-modal-lg" id="edit_batch" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="myModalLabel2">Edit Batch</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" method="get" action="/init/default/edit_batch">
+
+                            <input type="hidden" id="batchId" name="batchId" value="">
+                            <div class="item form-group">
+                                <label class="col-form-label col-md-3 col-sm-3 label-align" for="batch_title">Batch Title <span class="required">*</span></label>
+                                <div class="col-md-6 col-sm-6 ">
+                                    <input type="text" name="batch_title" id="batch_title" required="required" class="form-control ">
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                <div class="col-md-6 col-sm-6 offset-md-3">
+                                    <button type="submit" class="btn btn-success">Submit</button>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+ <!-----------------------------End of Batch Table & Modal-------------------------------------------->
+    </div>
+
+    <div class="">
+<!-----------------------------Start of Course Table & Modal---------------------------------------->
+        <div class="col-md-6 col-sm-6  ">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2> Courses <small>Registered Courses</small></h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li><a data-toggle="modal" data-target="#course_add"><i class="fa fa-plus"></i></a></li>
+                        <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <a class="dropdown-item" href="#">Settings 1</a>
+                                <a class="dropdown-item" href="#">Settings 2</a>
+                            </div>
+                        </li>
+                        <li><a class="close-link"><i class="fa fa-close"></i></a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Course Name</th>
+                                <th>Created By</th>
+                                <th>Created On</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{for course in courses:}}
+                                <tr>
+                                    <th scope="row">{{=course.id}}</th>
+                                    <td>{{=course.Course_Name}}</td>
+                                    <td>{{=db(db.auth_user.id == course.created_by).select(db.auth_user.first_name)[0].first_name}}</td>
+                                    <td>{{=course.created_on}}</td>
+                                </tr>
+                            {{pass}}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade bs-example-modal-sm" id="course_add" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="myModalLabel2">Add Course</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" method="get" action="/init/default/add_course">
+
+                            <div class="item form-group">
+                                <label class="col-form-label col-md-6 col-sm-6 label-align" for="first-name">Course Name <span class="required">*</span></label>
+                                <div class="col-md-6 col-sm-6 ">
+                                    <input type="text" name="course" id="course" required="required" class="form-control ">
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                <div class="col-md-6 col-sm-6 offset-md-3">
+                                    <button type="submit" class="btn btn-success">Submit</button>
+                                </div>
+                            </div>
+
+                        </form>
+                     </div>
+                </div>
+            </div>
+        </div>
+<!-----------------------------End of Course Table & Modal-------------------------------------------->
+
+<!-----------------------------Start of Location Table & Modal---------------------------------------->
+        <div class="col-md-6 col-sm-6  ">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2> Locations <small>Registered Locations</small></h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li><a data-toggle="modal" data-target="#location_add"><i class="fa fa-plus"></i></a></li>
+                        <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <a class="dropdown-item" href="#">Settings 1</a>
+                                <a class="dropdown-item" href="#">Settings 2</a>
+                            </div>
+                        </li>
+                        <li><a class="close-link"><i class="fa fa-close"></i></a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+                  <div class="x_content">
+
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>#</th>
+                          <th>Location Name</th>
+                          <th>Created By</th>
+                          <th>Created On</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {{for location in locations:}}
+                        <tr>
+                          <th scope="row">{{=location.id}}</th>
+                          <td>{{=location.location_Name}}</td>
+                          <td>{{=db(db.auth_user.id == location.created_by).select(db.auth_user.first_name)[0].first_name}}</td>
+                          <td>{{=location.created_on}}</td>
+                        </tr>
+                        {{pass}}
+                      </tbody>
+                    </table>
+
+                  </div>
+                </div>
+                </div>
+
+
+
+                  <div class="modal fade bs-example-modal-sm" id="location_add" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal-dialog modal-sm">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h4 class="modal-title" id="myModalLabel2">Add Location</h4>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" method="get" action="/init/default/add_location">
+
+                                <div class="item form-group">
+                                    <label class="col-form-label col-md-6 col-sm-6 label-align" for="first-name">Location Name <span class="required">*</span></label>
+                                    <div class="col-md-6 col-sm-6 ">
+                                        <input type="text" name="location" id="location" required="required" class="form-control ">
+                                    </div>
+                                </div>
+
+                                <div class="item form-group">
+                                    <div class="col-md-6 col-sm-6 offset-md-3">
+                                        <button type="submit" class="btn btn-success">Submit</button>
+                                    </div>
+                                </div>
+
+                            </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+<!-----------------------------End of Location Table & Modal-------------------------------------------->
+
+            </div>
+<div class="">
+<!-----------------------------Start of Specialization Table & Modal---------------------------------------->
+            <div class="col-md-6 col-sm-6  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2> Specialization <small>Specialization Courses</small></h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            <li><a data-toggle="modal" data-target="#specialization_add"><i class="fa fa-plus"></i></a></li>
+                            <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    <a class="dropdown-item" href="#">Settings 1</a>
+                                    <a class="dropdown-item" href="#">Settings 2</a>
+                                </div>
+                            </li>
+                            <li><a class="close-link"><i class="fa fa-close"></i></a></li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Specialization Name</th>
+                                    <th>Created By</th>
+                                    <th>Created On</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{for specialise in specializations:}}
+                                    <tr>
+                                        <th scope="row">{{=specialise.id}}</th>
+                                        <td>{{=specialise.specialization_Name}}</td>
+                                        <td>{{=db(db.auth_user.id == specialise.created_by).select(db.auth_user.first_name)[0].first_name}}</td>
+                                        <td>{{=specialise.created_on}}</td>
+                                    </tr>
+                                {{pass}}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade bs-example-modal-sm" id="specialization_add" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-sm">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title" id="myModalLabel2">Add Specialization</h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="add_specialiseForm" data-parsley-validate class="form-horizontal form-label-left" method="get" action="/init/default/add_specialization">
+
+                                <div class="item form-group">
+                                    <label class="col-form-label col-md-6 col-sm-6 label-align" for="specialise">Specialization Name <span class="required">*</span></label>
+                                    <div class="col-md-6 col-sm-6 ">
+                                        <input type="text" name="specialise" id="specialise" required="required" class="form-control ">
+                                    </div>
+                                </div>
+                                <div class="item form-group">
+                                    <div class="col-md-6 col-sm-6 offset-md-3">
+                                        <button type="submit" class="btn btn-success">Submit</button>
+                                    </div>
+                                </div>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+<!-----------------------------End of Specialization Table & Modal-------------------------------------------->
+
+
+            </div>
+        </div>

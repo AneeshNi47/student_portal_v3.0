@@ -1,0 +1,179 @@
+{{extend 'layout.html'}}
+
+        <script type="text/javascript">
+            function modal_value(value) {
+                var asignID = $(value).data('id');
+                var userID = $(value).data('userID');
+                $(".modal-body #asignID").val( asignID );
+                $(".modal-body #userID").val( userID );
+                $('#add_submital').modal('show');
+        }
+        </script>
+
+<div>
+{{if auth.has_membership(1) or auth.has_membership(2):}}
+    <!-----------------------------Start of Batch Table & Modal---------------------------------------->
+    <div class="col-md-12 col-sm-12  ">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2> Batch <small>Registered Batches</small></h2>
+                <ul class="nav navbar-right panel_toolbox">
+                    <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-wrench"></i></a>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <a class="dropdown-item" href="#">Settings 1</a>
+                            <a class="dropdown-item" href="#">Settings 2</a>
+                        </div>
+                    </li>
+                    <li><a class="close-link"><i class="fa fa-close"></i></a></li>
+                </ul>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <table class="table">
+                    <thead>
+                         <tr>
+                            <th>#</th>
+                            <th>Batch Title</th>
+                            <th>Course</th>
+                            <th>Specialization</th>
+                            <th>Location</th>
+                            <th>Students</th>
+                            <th>View</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{for batch in batches:}}
+                            <tr>
+                                {{selectedBatch = batch.Batch_title}}
+                                <th scope="row">{{=batch.id}}</th>
+                                <td>{{=batch.Batch_title}}</td>
+                                <td>{{=db(db.Course.id == batch.Batch_Course).select(db.Course.Course_Name)[0].Course_Name}}</td>
+                                <td>{{=db(db.Specialization.id == batch.Batch_Specialisation).select(db.Specialization.specialization_Name)[0].specialization_Name}}</td>
+                                <td>{{=db(db.C_Location.id == batch.Batch_Location).select(db.C_Location.location_Name)[0].location_Name}}</td>
+                                <td>{{=batch.Students_no}}</td>
+                                <td><a href="{{=URL('assignments','batch_assignments',vars=dict(batch_name=batch.Batch_title,batch_id=batch.id))}}" id="view_modalBtn"><i class="fa fa-eye fa-2x"></i></a></td>
+                            </tr>
+                        {{pass}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div> 
+            
+{{elif auth.has_membership(3):}}
+    {{from datetime import date}}
+    {{today = date.today()}}
+    <div class="col-md-6 col-sm-6  ">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2> Assignments <small>  Click on download Icon  </small></h2>
+                <ul class="nav navbar-right panel_toolbox">
+                    <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                    <li><a class="close-link"><i class="fa fa-close"></i></a></li>
+                </ul>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Assignment Title</th>
+                            <th>Subject</th>
+                            <th>Submission Date</th>
+                            <th>Actions</th>
+                        </tr> 
+                    </thead>
+                    <tbody>
+                        {{for assignment in assignments:}}
+                            <tr>
+                                <td>{{=assignment.Assignemnt_title}}</td>
+                                <td>{{=db(db.Subjects.id == assignment.subject_assign).select(db.Subjects.Subject_Name)[0].Subject_Name}}</td>
+                                {{if assignment.FinalSubmission_date < today:}}
+                                    <td style="color:red;"> {{=assignment.FinalSubmission_date}}</td>
+                                {{else:}}
+                                    <td> {{=assignment.FinalSubmission_date}}</td>
+                                {{pass}}
+                                <td>
+                                    <a href="{{=URL(f='download', args = assignment.Origianl_content)}}" data-toggle="tooltip" data-placement="left" title="Download Assignment"><i class="fa fa-download" aria-hidden="true"></i></a>
+                                   
+                                    <a onclick="modal_value(this)" data-toggle="modal" data-id="{{=assignment.id}}" data-userID="{{=auth.user.id}}" data-toggle="modal" class="identifyingClass" href="#add_submital" ><i class="fa fa-upload" aria-hidden="true"></i></a></td>
+                                </td>
+                            </tr>
+                        {{pass}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-sm-6  ">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2> Submissions <small>  Your Submitted Assignments  </small></h2>
+                <ul class="nav navbar-right panel_toolbox">
+                    <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                    <li><a class="close-link"><i class="fa fa-close"></i></a></li>
+                </ul>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Assignment Title</th>
+                            <th>Subject</th>
+                            <th>Submission Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{for submital in submitals:}}
+                            <tr>
+                                {{subject = db(db.Assignments.id == submital.Assignemnt_title).select(db.Assignments.subject_assign)[0].subject_assign}}
+                                <td>{{=db(db.Assignments.id == submital.Assignemnt_title).select(db.Assignments.Assignemnt_title)[0].Assignemnt_title}}</td>
+								<td>{{=db(db.Subjects.id == subject).select(db.Subjects.Subject_Name)[0].Subject_Name}}</td>
+                                {{last_date = db(db.Assignments.id == submital.Assignemnt_title).select(db.Assignments.FinalSubmission_date)[0].FinalSubmission_date}}
+                                {{if submital.Submission_date.date() > last_date:}}
+                                    <td style="color:red;"> Late submission</td>
+                                {{else:}}
+                                    <td> {{=submital.Submission_date}}</td>
+                                {{pass}}
+                                <td><a href="{{=URL(f='download', args = submital.Assignment_file)}}" data-toggle="tooltip" data-placement="left" title="View Uploaded File"><i class="fa fa-eye fa-2x" aria-hidden="true"></i></a></td>
+                            </tr>
+                        {{pass}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade bs-example-modal-lg" id="add_submital" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myModalLabel2">Upload Assigment</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                </div>
+                <div class="modal-body">
+                    <form id="demo-form2" data-parsley-validate enctype='multipart/form-data' class="form-horizontal form-label-left" method="post" action="/init/assignments/submit_assignments">  
+                        <input type="hidden"  id="asignID" name="asignID" value="">
+                        <input type="hidden"  id="userID" name="userID" value="">
+                        <div class="item form-group">
+                            <label class="col-form-label col-md-3 col-sm-3 label-align">Assignment File <span class="required">*</span></label>
+                            <div class="col-md-6 col-sm-6 ">
+                                <input id="assign_content" class="date-picker form-control" value="assign_content" name="assign_content" required="required" type="file">
+                            </div>
+                        </div>
+                        <div class="item form-group">
+                            <div class="col-md-6 col-sm-6 offset-md-3">
+                                <button type="submit" class="btn btn-success">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div> 
+    </div>
+{{pass}}
+</div>

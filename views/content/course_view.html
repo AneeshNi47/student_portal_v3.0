@@ -1,0 +1,115 @@
+{{extend 'layout.html'}}
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        {{INspcl_id = spcl_id}} 
+        {{INcourse_id = course_id}}
+        <div class="x_title">
+            <h2> Contents  <small> Under Course of {{=db(db.Course.id == course_id).select(db.Course.Course_Name)[0].Course_Name}}</small></h2>
+            <ul class="nav navbar-right panel_toolbox">
+                {{if auth.has_membership(1) or auth.has_membership(5):}}
+                    <li><a data-toggle="modal" data-target="#add_content"><i class="fa fa-plus"></i></a></li>
+                {{pass}}
+                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                <li><a class="close-link"><i class="fa fa-close"></i></a></li>
+            </ul>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Subject</th>
+                        <th>Batch Title</th>
+                        <th>Content Title</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{for subject in subjects:}}
+                        <tr>
+                            {{if db(db.Content_material.Subject_name == subject.id).select():}}
+                                <th>{{=subject.id}}</th>
+                                <th>{{=subject.Subject_Name}}</th>
+                                <td>
+                                    {{for content in contents:}}
+                                        {{if content.Subject_name == subject.id:}}
+                                            <br>
+                                            {{=db(db.Batch.id == content.Batch_id).select(db.Batch.Batch_title)[0].Batch_title}}
+                                        {{pass}}
+                                    {{pass}}
+                                </td>
+                                <td>
+                                    {{for content in contents:}}
+                                        {{if content.Subject_name == subject.id:}}
+                                            <br>
+                                            {{=content.Content_title}}
+                                            <a href="{{=URL(f='download', args =content.Content_file)}}"><i class="fas fa-file-alt"></i></a>
+                                            <a href="{{=URL('content','del_content',vars=dict(content_id=content.id,course_id=INcourse_id,spcl_id=INspcl_id))}}"><i class="fa fa-trash-o" aria-hidden="true"></i></a>
+                                        {{pass}}
+                                    {{pass}}
+                                </td>
+                            {{pass}}
+                        </tr>
+                    {{pass}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+ 
+<div class="modal fade bs-example-modal-lg" id="add_content" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel2">Add Content</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <form id="demo-form2" data-parsley-validate enctype='multipart/form-data' class="form-horizontal form-label-left" method="post" action="/init/content/add_content">
+                    <input type="hidden"  name="course_id" value="{{=course_id}}">
+                    <input type="hidden"  name="spcl_id" value="{{=spcl_id}}">    
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align" for="batch_title">Content Title <span class="required">*</span></label>
+                        <div class="col-md-6 col-sm-6 ">
+                            <input type="text" name="content_title" id="content_title" required="required" class="form-control ">
+                        </div>
+                    </div>
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align">Subject</label>
+                        <div class="col-md-6 col-sm-6 ">
+                            <select id="file_sub" name="file_sub" class="form-control">
+                                {{for subject in subjects:}}
+                                    <option value="{{=subject.id}}">{{=subject.Subject_Name}}</option>
+                                {{pass}}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align">Batch</label>
+                        <div class="col-md-6 col-sm-6 ">
+                            <select id="file_batch" name="file_batch" class="form-control">
+                                {{for batch in batches:}}
+                                    <option value="{{=batch.id}}">{{=batch.Batch_title}}</option>
+                                {{pass}}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align">Content File <span class="required">*</span></label>
+                        <div class="col-md-6 col-sm-6 ">
+                            <input id="sub_content" class="date-picker form-control" value="sub_content" name="sub_content" required="required" type="file">
+                        </div>
+                    </div>
+
+                    <div class="item form-group">
+                        <div class="col-md-6 col-sm-6 offset-md-3">
+                            <button type="submit" class="btn btn-success">Submit</button>
+                        </div>
+                    </div>
+                            
+                </form>
+            </div>
+        </div>
+    </div>
+</div> 
+<a type="button" href="{{=URL('content','index')}}" class="btn btn-round btn-info">Back</a>

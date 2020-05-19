@@ -1,0 +1,148 @@
+{{extend 'layout.html'}}
+
+<script type="text/javascript">
+    function modal_value(value) {
+        var gradeID = $(value).data('id');
+        $(".modal-body #grade_id").val( gradeID );
+        $('#edit_grade').modal('show');
+    }
+</script>
+
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Grades</h2>
+            <div class="clearfix"></div>
+            <ul class="nav navbar-right panel_toolbox">
+                <li><a data-toggle="modal" data-target="#add_grade"><i class="fa fa-plus"></i></a></li>
+                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                <li><a class="close-link"><i class="fa fa-close"></i></a></li>
+            </ul>
+            <div class="row">
+                <div class="col-3"><b>Name:</b> {{=student_det[0].F_Name}} {{=student_det[0].L_Name}}</div>
+                <div class="col-3"><b>Batch:</b> {{=db(db.Batch.id == batch_id).select(db.Batch.Batch_title)[0].Batch_title}}</div>
+                <div class="col-3"><b>Course:</b> {{=db(db.Course.id == course).select(db.Course.Course_Name)[0].Course_Name}}</div>
+            </div>
+            <div class="row">
+                <div class="col-3"><b>SBS ID:</b>{{=student_det[0].Student_colgID}}</div>
+                <div class="col-3"><b>Semester:</b> {{=db(db.Semester.id == sem_id).select(db.Semester.Semester_title)[0].Semester_title}}</div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        
+            <div class="x_content">
+                <table id="datatable-buttons" class="table">
+                <title>{{=student_det[0].F_Name}} {{=student_det[0].L_Name}}  {{=db(db.Semester.id == sem_id).select(db.Semester.Semester_title)[0].Semester_title}}</title>
+                    <thead>
+                         <tr>
+                            <th>Subject</th>
+                            <th>Marks</th>
+                            <th>Grade</th>
+                            <th>Remarks</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{for grade in grades:}}
+                            <tr>
+                                <td>{{=db(db.Subjects.id == grade.Subject).select(db.Subjects.Subject_Name)[0].Subject_Name}}</td>
+                                <td>{{=grade.Mark}}</td>
+                                <td>{{=grade.Grade}}</td>
+                                <td>{{=grade.Remarks}}</td>
+                                <td>
+                                    <div class = "row">
+                                        <div class = "col-6"><a onclick="modal_value(this)" data-toggle="modal" data-target="#edit_grade" data-id="{{=grade.id}}" href="#"><i class="far fa-edit fa-lg"></i></a></div>
+                                        <div class = "col-6"><a href="{{=URL('grades','del_grade',vars=dict(grade_id=grade.id,batch_id=batch_id,semester_id=sem_id,student_id=student_det[0].id))}}" ><i class="fa fa-trash-o fa-lg"></i></a></div>
+                                    </div>
+                                </td>
+                            </tr>
+                        {{pass}}
+                    </tbody>
+                </table>
+            </div>
+    </div>
+</div>
+<a type="button" href="{{=URL('grades','student_grade',vars=dict(batch_name=batch_name,batch_id=batch_id,batch_timing=batch_timing))}}" class="btn btn-round btn-info">Back</a>
+
+<div class="modal fade bs-example-modal-lg" id="add_grade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel2">Add Grade</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" method="get" action="/init/grades/add_grade">         
+                    <input type="hidden"  name="sem_id" value="{{=sem_id}}">
+                    <input type="hidden"  name="student_id" value="{{=student_det[0].id}}">  
+                    <input type="hidden"  name="batch_id" value="{{=batch_id}}">       
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align" for="first-name">Marks <span class="required">*</span></label>
+                        <div class="col-md-9 col-sm-9 ">
+                            <input type="text" name="smeGrade_marks" id="smeGrade_marks" required="required" class="form-control ">
+                        </div>
+                    </div>
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align">Subject</label>
+                        <div class="col-md-9 col-sm-9 ">
+                            <select id="grade_sub" name="grade_sub" class="form-control">
+                                {{for subject in subjects:}}
+                                    {{if not db((db.Grades.Semester_id == sem_id)&(db.Grades.Subject == subject.id)&(db.Grades.Student_id == student)).select():}}
+                                        <option value="{{=subject.id}}">{{=subject.Subject_Name}}</option>
+                                    {{pass}}
+                                {{pass}}
+                            </select>
+                        </div>
+                    </div>       
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align" for="smeGrade_remarks">Remarks <span class="required">*</span></label>
+                        <div class="col-md-9 col-sm-9 ">
+                            <input type="text" name="smeGrade_remarks" id="smeGrade_remarks" class="form-control ">
+                        </div>
+                    </div>
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 offset-md-3">
+                            <button type="submit" class="btn btn-success">Submit</button>
+                        </div>
+                    </div>        
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bs-example-modal-lg" id="edit_grade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel2">Edit Grade</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" method="get" action="/init/grades/edit_grade">         
+                    <input type="hidden"  id="grade_id" name="grade_id" value="">             
+                    <input type="hidden"  name="sem_id" value="{{=sem_id}}">
+                    <input type="hidden"  name="student_id" value="{{=student_det[0].id}}">  
+                    <input type="hidden"  name="batch_id" value="{{=batch_id}}">          
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align" for="first-name">Marks <span class="required">*</span></label>
+                        <div class="col-md-9 col-sm-9 ">
+                            <input type="text" name="smeGrade_marks" id="smeGrade_marks" required="required" class="form-control ">
+                        </div>
+                    </div>       
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align" for="smeGrade_remarks">Remarks <span class="required">*</span></label>
+                        <div class="col-md-9 col-sm-9 ">
+                            <input type="text" name="smeGrade_remarks" id="smeGrade_remarks" required="required" class="form-control ">
+                        </div>
+                    </div>
+                    <div class="item form-group">
+                        <div class="col-md-12 col-sm-12 offset-md-3">
+                            <button type="submit" class="btn btn-success">Submit</button>
+                        </div>
+                    </div>        
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

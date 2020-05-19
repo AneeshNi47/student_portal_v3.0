@@ -1,0 +1,572 @@
+{{extend 'layout.html'}}
+
+<script type="text/javascript">
+    function modal_value(value) {
+        var studentId = $(value).data('id');
+        $(".modal-body #studentId").val( studentId );
+    }
+</script>
+
+<script type="text/javascript">
+      function validate(id) {
+      $.ajax({
+              type: "POST",
+              url: '{{=URL('student','validate_id')}}',
+              data: {
+                      student_id: id
+              },
+              success: function(data){
+                    if (data.status){
+                        document.getElementById("verify").classList.remove('fa-minus');
+                        document.getElementById("verify").classList.add('fa-times');
+                        document.getElementById("verify").style.color = "red";
+                        document.getElementById("submit_btn").style.display = "none";
+                    }
+                    else{
+                        document.getElementById("verify").classList.remove('fa-minus','fa-times');
+                        document.getElementById("verify").classList.add('fa-check');
+                        document.getElementById("verify").style.color = "green";
+                        document.getElementById("submit_btn").style.display = "block";
+                    }
+               }
+            });
+    }
+</script>
+
+
+
+<div class="col-md-12 col-sm-12 ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Students<small>Registered Students</small></h2>
+            <ul class="nav navbar-right panel_toolbox">
+                <li><a data-toggle="modal" data-target=".bs-example-modal-lg"><i class="fa fa-plus"></i></a></li>
+                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                 <li><a class="close-link"><i class="fa fa-close"></i></a></li>
+            </ul>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card-box table-responsive">
+                        <p class="text-muted font-13 m-b-30">
+                            The table displays all students registered with the College, under different locations and courses.
+                        </p>
+					    <table id="datatable-responsive" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="90%">
+                            <thead>
+                                <tr>
+                                    <th>First name</th>
+                                    <th>Last name</th>
+                                    <th>Student ID</th>
+                                    <th>Email</th>
+                                    <th>Contact</th>
+                                    <th>Batch</th>
+                                    <th>Birth Country</th>
+                                    <th>Birth Place</th>
+                                    <th><i class="fab fa-facebook fa-2x"></i></th>
+                                    <th><i class="fab fa-linkedin fa-2x"></i></th>
+                                    <th><i class="fab fa-twitter-square fa-2x"></i></th>
+                                    <th>Photo</th>
+                                    <th>Secondary Email</th>
+                                    <th>Secondary Contact</th>
+                                    <th>Joining</th>
+                                    <th>Registration</th>
+                                    <th>Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{for student in students:}}
+                                    {{if student.is_active:}}
+                                    <tr>
+                                        <td>
+                                            <a onclick="modal_value(this)" data-toggle="modal" data-id="{{=student.id}}" data-toggle="modal" class="identifyingClass" href="#edit_Fname" >
+                                                {{=student.F_Name}}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a onclick="modal_value(this)" data-toggle="modal" data-id="{{=student.id}}" data-toggle="modal" class="identifyingClass" href="#edit_Lname" >
+                                                {{=student.L_Name}}
+                                            </a>
+                                        </td>
+                                        <td>{{=student.Student_colgID}}</td>
+                                        <td>
+                                            <a onclick="modal_value(this)" data-toggle="modal" data-id="{{=student.id}}" data-toggle="modal" class="identifyingClass" href="#edit_email" >
+                                                {{=student.Email}}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a onclick="modal_value(this)" data-toggle="modal" data-id="{{=student.id}}" data-toggle="modal" class="identifyingClass" href="#edit_contact" >
+                                                {{=student.Contact}}
+                                            </a>
+                                        </td>
+                                        {{if student.Batch == None:}}
+                                            <td>None</td>
+                                        {{else:}}
+                                            <td>{{=db(db.Batch.id == student.Batch).select(db.Batch.Batch_title)[0].Batch_title}}</td>
+                                        {{pass}}
+                                        <td>
+                                            <a onclick="modal_value(this)" data-toggle="modal" data-id="{{=student.id}}" data-toggle="modal" class="identifyingClass" href="#edit_birthCountry" >
+                                                {{=student.Birth_country}}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a onclick="modal_value(this)" data-toggle="modal" data-id="{{=student.id}}" data-toggle="modal" class="identifyingClass" href="#edit_birthPlace" >
+                                                {{=student.Birth_place}}
+                                            </a>
+                                        </td>
+                                        <td>{{=student.FB_ID}}</td>
+                                        <td>{{=student.LinkedIn_ID}}</td>
+                                        <td>{{=student.twitter_ID}}</td>
+                                        <td>
+                                            {{if student.icon_image:}}
+                                                <img style="width:100px;height:100px;" class="img-responsive avatar-view" src="{{=URL('default', 'download', args=student.icon_image)}}" />
+                                            {{else:}}
+                                                <img style="width:100px;height:100px;" class="img-responsive avatar-view" src="{{=URL('static','prof_image.jpg')}}" />
+                                            {{pass}}
+                                        </td>
+                                        <td>
+                                            <a onclick="modal_value(this)" data-toggle="modal" data-id="{{=student.id}}" data-toggle="modal" class="identifyingClass" href="#edit_email2" >
+                                                {{=student.Email2}}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a onclick="modal_value(this)" data-toggle="modal" data-id="{{=student.id}}" data-toggle="modal" class="identifyingClass" href="#edit_contact2" >
+                                                {{=student.Contact2}}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a onclick="modal_value(this)" data-toggle="modal" data-id="{{=student.id}}" data-toggle="modal" class="identifyingClass" href="#edit_doj" >
+                                                {{=student.DoJ}}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a onclick="modal_value(this)" data-toggle="modal" data-id="{{=student.id}}" data-toggle="modal" class="identifyingClass" href="#edit_dor" >
+                                                {{=student.DoR}}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="{{=URL('student','del_student',vars=dict(studentId=student.id))}}" id="view_modalBtn">
+                                                <i class="fa fa-trash" aria-hidden="true"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {{pass}}
+                                {{pass}}
+                            </tbody>
+                        </table>
+					</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                          <h4 class="modal-title" id="myModalLabel">Add New Student</h4>
+                          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+						
+							<form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" method="get" action="/init/student/add_student">
+								<div class="item form-group">
+									<label class="col-form-label col-md-3 col-sm-3 label-align" for="first-name">First Name <span class="required">*</span></label>
+									<div class="col-md-6 col-sm-6 ">
+										<input type="text" name="first_name" id="first-name" required="required" class="form-control ">
+									</div>
+								</div>
+								<div class="item form-group">
+									<label class="col-form-label col-md-3 col-sm-3 label-align" for="last-name">Last Name <span class="required">*</span></label>
+									<div class="col-md-6 col-sm-6 ">
+										<input type="text" id="last_name" name="last_name" required="required" class="form-control">
+									</div>
+								</div>
+								<div class="item form-group">
+									<label class="col-form-label col-md-3 col-sm-3 label-align" for="colg_id">College ID <span class="required">*</span></label>
+									<div class="col-md-6 col-sm-6 ">
+										<input type="text" id="colg_id" name="colg_id" onblur="validate(this.value)"  required="required" class="form-control">
+                                    </div>
+                                    <i id="verify" class="fas fa-minus"></i>
+								</div>
+								<div class="item form-group">
+									<label class="col-form-label col-md-3 col-sm-3 label-align">Date Of Joining </label>
+										<div class="col-md-6 col-sm-6 ">
+                                            <input id="doj" name="doj" class="date-picker form-control" type="date">
+                                        </div>
+                                </div>
+                                <div class="item form-group">
+                                    <label class="col-form-label col-md-3 col-sm-3 label-align" for="email">Email <span class="required">*</span></label>
+                                    <div class="col-md-6 col-sm-6 ">
+                                        <input type="email" id="email" name="email" required="required" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="item form-group">
+                                    <label class="col-form-label col-md-3 col-sm-3 label-align" for="email">Email Secondary <span class="required">*</span></label>
+                                    <div class="col-md-6 col-sm-6 ">
+                                        <input type="email" id="email" name="email2" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="item form-group">
+                                    <label class="col-form-label col-md-3 col-sm-3 label-align" for="contactNo">Contact No. <span class="required">*</span></label>
+                                    <div class="col-md-6 col-sm-6 ">
+                                        <input type="text" id="contactNo" name="contactNo" required="required" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="item form-group">
+                                    <label class="col-form-label col-md-3 col-sm-3 label-align" for="contactNo">Contact No. Secondary <span class="required">*</span></label>
+                                    <div class="col-md-6 col-sm-6 ">
+                                        <input type="text" id="contactNo" name="contactNo2" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="item form-group">
+                                    <label class="col-form-label col-md-3 col-sm-3 label-align">Date Of Registration <span class="required">*</span></label>
+                                    <div class="col-md-6 col-sm-6 ">
+                                        <input id="dor" name="dor" class="date-picker form-control" required="required" type="date">
+                                    </div>
+                                </div>
+                                <div class="ln_solid"></div>
+                                <div class="item form-group">
+                                    <div class="col-md-6 col-sm-6 offset-md-3">
+                                        <button id="submit_btn" style="display:none;" type="submit" class="btn btn-success">Submit</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade bs-example-modal-lg" id="edit_Fname" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                          <h4 class="modal-title" id="myModalLabel">Edit First Name</h4>
+                          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+						
+							<form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" method="get" action="/init/student/edit_Fname">
+								
+                                <input type="hidden" id="studentId" name="studentId" value="">   
+                                <div class="item form-group">
+									<label class="col-form-label col-md-3 col-sm-3 label-align" for="first-name">First Name <span class="required">*</span></label>
+									<div class="col-md-6 col-sm-6 ">
+										<input type="text" name="first_name" id="first-name" required="required" class="form-control ">
+									</div>
+								</div>
+                                <div class="ln_solid"></div>
+                                <div class="item form-group">
+                                    <div class="col-md-6 col-sm-6 offset-md-3">
+                                        <button type="submit" class="btn btn-success">Submit</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade bs-example-modal-lg" id="edit_Lname" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                          <h4 class="modal-title" id="myModalLabel">Edit Last Name</h4>
+                          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+						
+							<form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" method="get" action="/init/student/edit_Lname">
+								
+                                <input type="hidden" id="studentId" name="studentId" value="">   
+								<div class="item form-group">
+									<label class="col-form-label col-md-3 col-sm-3 label-align" for="last-name">Last Name <span class="required">*</span></label>
+									<div class="col-md-6 col-sm-6 ">
+										<input type="text" id="last_name" name="last_name" required="required" class="form-control">
+									</div>
+								</div>
+                                <div class="ln_solid"></div>
+                                <div class="item form-group">
+                                    <div class="col-md-6 col-sm-6 offset-md-3">
+                                        <button type="submit" class="btn btn-success">Submit</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade bs-example-modal-lg" id="edit_doj" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                          <h4 class="modal-title" id="myModalLabel">Edit Date Of Joining</h4>
+                          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+						
+							<form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" method="get" action="/init/student/edit_doj">
+								
+                                <input type="hidden" id="studentId" name="studentId" value="">   
+                                <div class="item form-group">
+									<label class="col-form-label col-md-3 col-sm-3 label-align">Date Of Joining <span class="required">*</span></label>
+										<div class="col-md-6 col-sm-6 ">
+                                            <input id="doj" name="doj" class="date-picker form-control" required="required" type="date">
+                                        </div>
+                                </div>
+                                <div class="ln_solid"></div>
+                                <div class="item form-group">
+                                    <div class="col-md-6 col-sm-6 offset-md-3">
+                                        <button type="submit" class="btn btn-success">Submit</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade bs-example-modal-lg" id="edit_email" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                          <h4 class="modal-title" id="myModalLabel">Edit Email</h4>
+                          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+						
+							<form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" method="get" action="/init/student/edit_email">
+								
+                                <input type="hidden" id="studentId" name="studentId" value="">   
+                                <div class="item form-group">
+                                    <label class="col-form-label col-md-3 col-sm-3 label-align" for="email">Email <span class="required">*</span></label>
+                                    <div class="col-md-6 col-sm-6 ">
+                                        <input type="email" id="email" name="email" required="required" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="ln_solid"></div>
+                                <div class="item form-group">
+                                    <div class="col-md-6 col-sm-6 offset-md-3">
+                                        <button type="submit" class="btn btn-success">Submit</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade bs-example-modal-lg" id="edit_email2" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                          <h4 class="modal-title" id="myModalLabel">Edit secondary Email</h4>
+                          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+						
+							<form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" method="get" action="/init/student/edit_email2">
+								 <input type="hidden" id="studentId" name="studentId" value="">
+                                <div class="item form-group">
+                                    <label class="col-form-label col-md-3 col-sm-3 label-align" for="email">Email Secondary <span class="required">*</span></label>
+                                    <div class="col-md-6 col-sm-6 ">
+                                        <input type="email" id="email" name="email2" required="required" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="ln_solid"></div>
+                                <div class="item form-group">
+                                    <div class="col-md-6 col-sm-6 offset-md-3">
+                                        <button type="submit" class="btn btn-success">Submit</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade bs-example-modal-lg" id="edit_contact" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                          <h4 class="modal-title" id="myModalLabel">Edit Contact</h4>
+                          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+						
+							<form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" method="get" action="/init/student/edit_contact">
+								 <input type="hidden" id="studentId" name="studentId" value="">
+                                <div class="item form-group">
+                                    <label class="col-form-label col-md-3 col-sm-3 label-align" for="contactNo">Contact No. <span class="required">*</span></label>
+                                    <div class="col-md-6 col-sm-6 ">
+                                        <input type="text" id="contactNo" name="contactNo" required="required" class="form-control">
+                                    </div>
+                                </div>
+								
+                                <div class="ln_solid"></div>
+                                <div class="item form-group">
+                                    <div class="col-md-6 col-sm-6 offset-md-3">
+                                        <button type="submit" class="btn btn-success">Submit</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade bs-example-modal-lg" id="edit_contact2" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                          <h4 class="modal-title" id="myModalLabel">Edit secondary Contact</h4>
+                          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+						
+							<form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" method="get" action="/init/student/edit_contact2">
+								 <input type="hidden" id="studentId" name="studentId" value="">
+                                <div class="item form-group">
+                                    <label class="col-form-label col-md-3 col-sm-3 label-align" for="contactNo">Contact No. Secondary <span class="required">*</span></label>
+                                    <div class="col-md-6 col-sm-6 ">
+                                        <input type="text" id="contactNo" name="contactNo2" required="required" class="form-control">
+                                    </div>
+                                </div>
+								
+                                <div class="ln_solid"></div>
+                                <div class="item form-group">
+                                    <div class="col-md-6 col-sm-6 offset-md-3">
+                                        <button type="submit" class="btn btn-success">Submit</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade bs-example-modal-lg" id="edit_dor" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                          <h4 class="modal-title" id="myModalLabel">Edit Date of Registration</h4>
+                          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+						
+							<form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" method="get" action="/init/student/edit_dor">
+								 <input type="hidden" id="studentId" name="studentId" value="">
+                                <div class="item form-group">
+                                    <label class="col-form-label col-md-3 col-sm-3 label-align">Date Of Registration <span class="required">*</span></label>
+                                    <div class="col-md-6 col-sm-6 ">
+                                        <input id="dor" name="dor" class="date-picker form-control" required="required" type="date">
+                                    </div>
+                                </div>
+								
+                                <div class="ln_solid"></div>
+                                <div class="item form-group">
+                                    <div class="col-md-6 col-sm-6 offset-md-3">
+                                        <button type="submit" class="btn btn-success">Submit</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade bs-example-modal-lg" id="edit_birthPlace" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                          <h4 class="modal-title" id="myModalLabel">Edit Birth Place</h4>
+                          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+						
+							<form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" method="get" action="/init/student/edit_birthPlace">
+								 <input type="hidden" id="studentId" name="studentId" value="">
+                                <div class="item form-group">
+                                    <label class="col-form-label col-md-3 col-sm-3 label-align" for="birthPlace">Birth Place <span class="required">*</span></label>
+                                    <div class="col-md-6 col-sm-6 ">
+                                        <input type="text" id="birthPlace" name="birthPlace" required="required" class="form-control">
+                                    </div>
+                                </div>
+								
+                                <div class="ln_solid"></div>
+                                <div class="item form-group">
+                                    <div class="col-md-6 col-sm-6 offset-md-3">
+                                        <button type="submit" class="btn btn-success">Submit</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal fade bs-example-modal-lg" id="edit_birthCountry" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+
+                        <div class="modal-header">
+                          <h4 class="modal-title" id="myModalLabel">Edit Birth Country</h4>
+                          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+						
+							<form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" method="get" action="/init/student/edit_birthCountry">
+								 <input type="hidden" id="studentId" name="studentId" value="">
+                                <div class="item form-group">
+                                    <label class="col-form-label col-md-3 col-sm-3 label-align" for="birthCountry">Birth Country <span class="required">*</span></label>
+                                    <div class="col-md-6 col-sm-6 ">
+                                        <input type="text" id="birthCountry" name="birthCountry" required="required" class="form-control">
+                                    </div>
+                                </div>
+								
+                                <div class="ln_solid"></div>
+                                <div class="item form-group">
+                                    <div class="col-md-6 col-sm-6 offset-md-3">
+                                        <button type="submit" class="btn btn-success">Submit</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+
+    </div>
+</div>

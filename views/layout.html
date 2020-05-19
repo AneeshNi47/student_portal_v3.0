@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="stext/html; charset=UTF-8">
+    <!-- Meta, title, CSS, favicons, etc. -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="{{=URL('static','favicon.ico')}}" type="image/x-icon">
+    <link rel="icon" href="{{=URL('static','favicon.ico')}}" type="image/x-icon">
+
+    <title>studentPortal</title>
+
+    <!-- Bootstrap -->
+    <link href="{{=URL('static','js/vendors/bootstrap/dist/css/bootstrap.min.css')}}" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="{{=URL('static','js/vendors/font-awesome/css/font-awesome.min.css')}}" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/bd553a934e.js" crossorigin="anonymous"></script>
+    <!-- NProgress -->
+    <link href="{{=URL('static','js/vendors/nprogress/nprogress.css')}}" rel="stylesheet">
+    <!-- iCheck -->
+    <link href="{{=URL('static','js/vendors/iCheck/skins/flat/green.css')}}" rel="stylesheet">
+    <!-- Select2 -->
+    <link href="{{=URL('static','js/vendors/select2/dist/css/select2.min.css')}}" rel="stylesheet">
+    <!-- Switchery -->
+    <link href="{{=URL('static','js/vendors/switchery/dist/switchery.min.css')}}" rel="stylesheet">
+    
+
+    <!-- Datatables -->
+    <link href="cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
+    <link href="{{=URL('static','js/vendors/datatables.net-bs/css/dataTables.bootstrap.min.css')}}" rel="stylesheet">
+    <link href="{{=URL('static','js/vendors/datatables.net-buttons-bs/css/buttons.bootstrap.min.css')}}" rel="stylesheet">
+    <link href="{{=URL('static','js/vendors/datatables.net-fixedheader-bs/css/fixedHeader.bootstrap.min.css')}}" rel="stylesheet">
+    <link href="{{=URL('static','js./vendors/datatables.net-responsive-bs/css/responsive.bootstrap.min.css')}}" rel="stylesheet">
+    <link href="{{=URL('static','js/vendors/datatables.net-scroller-bs/css/scroller.bootstrap.min.css')}}" rel="stylesheet">
+
+
+    <!-- bootstrap-progressbar -->
+    <link href="{{=URL('static','js/vendors/bootstrap-progressbar/css/bootstrap-progressbar-3.3.4.min.css')}}" rel="stylesheet">
+    <!-- JQVMap -->
+    <link href="{{=URL('static','js/vendors/jqvmap/dist/jqvmap.min.css')}}" rel="stylesheet">
+    <!-- bootstrap-daterangepicker -->
+    <link href="{{=URL('static','js/vendors/bootstrap-daterangepicker/daterangepicker.css')}}" rel="stylesheet">
+    <!-- bootstrap-datetimepicker -->
+    <link href="{{=URL('static','js/vendors/bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css')}}" rel="stylesheet">
+
+
+
+    <!-- Custom Theme Style -->
+    <link href="{{=URL('static','css/custom.min.css')}}" rel="stylesheet">
+  </head>
+
+  <body class="nav-sm">
+    <div class="container body">
+      <div class="main_container">
+        <div class="col-md-3 left_col">
+          <div class="left_col scroll-view">
+            <div class="navbar nav_title" style="border: 0;">
+              <a href="index.html" class="site_title">
+                  <i class="fa fa-graduation-cap"></i>
+                  <span>Student Portal</span>
+              </a>
+            </div>
+
+            <div class="clearfix"></div>
+            <br>
+              
+            <!-- sidebar menu -->
+            <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+              <div class="menu_section">
+                <h3>
+                  {{if auth.has_membership(1):}}
+                    Admin
+                  {{elif auth.has_membership(2):}}
+                    Examiner
+                  {{elif auth.has_membership(3):}}  
+                    Student
+                  {{pass}}      
+                </h3>
+                <ul class="nav side-menu">
+                  {{for _item in response.menu or []:}}
+                    {{if 4 > len(_item) or not _item[3]:}}
+                      <li class="nav-item {{if _item[1]:}}active{{pass}}">
+                        <a class="nav-link" href="{{=_item[2]}}">
+                          {{if _item[0] == "Home":}}<i class="fa fa-home"></i>{{pass}}
+                          {{if _item[0] == "Batch Elements":}}<i class="fa fa-book"></i>{{pass}}
+                          {{if _item[0] == "Students":}}<i class="fas fa-user-graduate"></i>{{pass}}
+                          {{if _item[0] == "Content":}}<i class="fa fa-files-o" aria-hidden="true"></i>{{pass}}
+                          {{if _item[0] == "Assignments":}}<i class="fa fa-pencil-square-o"></i>{{pass}}
+                          {{if _item[0] == "Notifications":}}<i class="fa fa-bell"></i>{{pass}}
+                          {{if _item[0] == "Grades":}}<i class="fa fa-check-square-o"></i>{{pass}}
+                          {{if _item[0] == "Schedule":}}<i class="fa fa-calendar"></i>{{pass}}
+                          {{if _item[0] == "Settings":}}<i class="fa fa-cog"></i>{{pass}}
+                          {{if _item[0] == "Degree":}}<i class="fas fa-file-contract"></i>{{pass}}
+                          {{=_item[0]}}
+                        </a>
+                      </li>
+                    {{else:}}
+                      <li>
+                        <a>
+                          {{if _item[0] == "Students":}}<i class="fa fa-users"></i>{{pass}}
+                          {{=_item[0]}}<span class="fa fa-chevron-down"></span>
+                        </a>
+                        <ul class="nav child_menu">
+                          {{for _subitem in _item[3]:}}
+                            <li><a href="{{=_subitem[2]}}">{{=_subitem[0]}}</a></li>
+                          {{pass}}
+                        </ul>
+                      </li>
+						        {{pass}}
+					        {{pass}}
+                </ul>
+                  <img src="{{=URL('static','fa_ATMS_PNG.png')}}" style="width: 30%; height: 90%; padding-right: 20px; padding left: 20px;" align="middle" alt="...">
+              </div>
+            </div>
+            <!-- /sidebar menu -->
+
+
+          </div>
+        </div>
+
+        <!-- top navigation -->
+        <div class="top_nav">
+          <div class="nav_menu">
+              <div class="nav toggle">
+                <a id="menu_toggle"><i class="fa fa-bars"></i></a>
+              </div>
+              <nav class="nav navbar-nav">
+              <ul class=" navbar-right">
+			  {{if 'auth' in globals():}}
+                <li class="nav-item dropdown open" style="padding-left: 15px;">
+                  <a href="javascript:;" class="user-profile dropdown-toggle" aria-haspopup="true" id="navbarDropdown" data-toggle="dropdown" aria-expanded="false">
+                    {{if auth.user:}}
+                      {{stud_id = db(db.Student.Student_appID == auth.user.id).select()}}
+                      {{if stud_id:}}
+                        {{if stud_id[0].icon_image:}}
+                          <img src="{{=URL('default', 'download', args=stud_id[0].icon_image)}}" />
+                        {{else:}}
+                          <img src="{{=URL('static','prof_image.jpg')}}" />
+                        {{pass}}
+                      {{else:}}
+                        <img src="{{=URL('static','fa_ATMS_PNG.png')}}" alt="">
+                      {{pass}}
+                      {{=auth.user.first_name}}
+                    {{else:}}
+                      LOGIN
+                    {{pass}}
+                  </a>
+                  <div class="dropdown-menu dropdown-usermenu pull-right" aria-labelledby="navbarDropdown">
+					{{if auth.user:}}
+						<a class="dropdown-item" href="{{=URL('default','user/profile')}}">{{=T('Profile')}}</a>
+						{{if 'change_password' not in auth.settings.actions_disabled:}}
+							<a class="dropdown-item" href="{{=URL('default','user/change_password')}}">{{=T('Change Password')}}</a>
+						{{pass}}
+						<a class="dropdown-item" href="{{=URL('default','user/logout')}}">{{=T('Logout')}}</a>
+						{{else:}}
+							<a class="dropdown-item" href="{{=URL('default','user/login')}}">{{=T('Login')}}</a>
+							{{if 'register' not in auth.settings.actions_disabled:}}
+								<a class="dropdown-item" href="{{=URL('default','user/register')}}">{{=T('Sign up')}}</a>
+							{{pass}}
+							{{if 'retrieve_password' not in auth.settings.actions_disabled:}}
+								<a class="dropdown-item" href="{{=URL('default','user/retrieve_password')}}">{{=T('Lost Password')}}</a>
+							{{pass}}
+					{{pass}}
+                  </div>
+                </li>
+				{{pass}}
+          {{if auth.user:}}
+                <li role="presentation" class="nav-item dropdown open">
+                {{if auth.has_membership(3):}}
+                  {{student = db(db.Student.Student_appID == auth.user.id).select()}}
+                  {{batch = db(db.Batch.id == student[0].Batch).select()}}
+                  {{batchQ = db.Notifications.Given_to_B == batch[0].id}}
+                  {{userQ = db.Notifications.Given_to_S == auth.user.id}}
+                  {{statusQ = db.Notifications.Status == "Open" }}
+                  {{notifications = db(batchQ | userQ).select()}}
+                {{else:}}
+                  {{notifications = db(db.Notifications.Given_to_S == auth.user.id).select()}}
+                {{pass}}
+                  <a href="javascript:;" class="dropdown-toggle info-number" id="navbarDropdown1" data-toggle="dropdown" aria-expanded="false">
+                    <i class="fa fa-envelope-o"></i>
+                    <span class="badge bg-green">
+                    {{if notifications != None:}}
+                      {{if auth.has_membership(3):}}
+                        {{=db((batchQ | userQ ) & statusQ).count()}}
+                      {{else:}}
+                        {{=db((db.Notifications.Given_to_S == auth.user.id) & (db.Notifications.Status == "Open")).count()}}
+                      {{pass}}
+                    {{pass}} 
+                    </span>
+                  </a>
+                  <ul class="dropdown-menu list-unstyled msg_list" role="menu" aria-labelledby="navbarDropdown1">
+                    {{for notification in notifications:}}
+                      {{if notification != None:}}
+                        {{if notification.Status == "Open":}}
+                        <li class="nav-item">
+                          <a class="dropdown-item">
+                            <span class="image"><img src="{{=URL('static','fa_ATMS_PNG.png')}}" alt="Profile Image" /></span>
+                            <span>
+                            {{person = db(db.auth_user.id == notification.Given_by).select()}}
+                              <span>{{=person[0].first_name}} {{=person[0].last_name}}</span>
+                              <span class="time">{{=notification.set_date}}</span>
+                            </span>
+                          <span class="message">
+                            {{=notification.Message_n}}
+                          </span>
+                        </a>
+                        </li>
+                        {{pass}}
+                      {{pass}}
+                    {{pass}}
+                    <li class="nav-item">
+                      <div class="text-center">
+                        <a class="dropdown-item" href="{{=URL('notifications','index')}}">
+                          <strong >See All Alerts</strong>
+                          <i class="fa fa-angle-right"></i>
+                        </a>
+                      </div>
+                    </li>
+                  </ul>
+                </li>
+                {{pass}}
+              </ul>
+            </nav>
+          </div>
+        </div>
+        <!-- /top navigation -->
+
+        <!-- page content -->
+        <div class="right_col" role="main">
+			<!-- Begin page content -->
+				{{include}}
+				{{=response.toolbar() if response.show_toolbar else ''}}
+        </div>
+        <!-- /page content -->
+
+        <!-- footer content -->
+        <footer>
+          <div class="pull-right">
+            StudentPortal - Educational Application by <a href="https://www.aduroindustries.com">Aduro Solutions</a>
+          </div>
+          <div class="clearfix"></div>
+        </footer>
+        <!-- /footer content -->
+      </div>
+    </div>
+
+
+    <!-- The javascript ===============================
+    <script src="{{=URL('static','js/bootstrap.bundle.min.js')}}"></script>
+    <script src="{{=URL('static','js/web2py-bootstrap4.js')}}"></script>-->
+    {{block page_js}}{{end page_js}}
+    {{if response.google_analytics_id:}}
+    
+    <script src="{{=URL('static','js/analytics.min.js')}}"></script>
+    {{pass}}
+    
+    <!-- Google Analytics ==================================== -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-165270129-1"></script>
+    <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'UA-165270129-1');
+    </script>
+      
+    
+    <!-- jQuery -->
+    <script src="{{=URL('static','js/vendors/jquery/dist/jquery.min.js')}}"></script>
+    <!-- Bootstrap -->
+    <script src="{{=URL('static','js/vendors/bootstrap/dist/js/bootstrap.bundle.min.js')}}"></script>
+    <!-- FastClick -->
+    <script src="{{=URL('static','js/vendors/fastclick/lib/fastclick.js')}}"></script>
+    <!-- NProgress -->
+    <script src="{{=URL('static','js/vendors/nprogress/nprogress.js')}}"></script>
+    <!-- Chart.js -->
+    <script src="{{=URL('static','js/vendors/Chart.js/dist/Chart.min.js')}}"></script>
+    <!-- gauge.js -->
+    <script src="{{=URL('static','js/vendors/gauge.js/dist/gauge.min.js')}}"></script>
+    <!-- bootstrap-progressbar -->
+    <script src="{{=URL('static','js/vendors/bootstrap-progressbar/bootstrap-progressbar.min.js')}}"></script>
+    <!-- iCheck -->
+    <script src="{{=URL('static','js/vendors/iCheck/icheck.min.js')}}"></script>
+    <!-- Switchery -->
+    <script src="{{=URL('static','js/vendors/switchery/dist/switchery.min.js')}}"></script>
+    <!-- Skycons -->
+    <script src="{{=URL('static','js/vendors/skycons/skycons.js')}}"></script>
+    <!-- Flot -->
+    <script src="{{=URL('static','js/vendors/Flot/jquery.flot.js')}}"></script>
+    <script src="{{=URL('static','js/vendors/Flot/jquery.flot.pie.js')}}"></script>
+    <script src="{{=URL('static','js/vendors/Flot/jquery.flot.time.js')}}"></script>
+    <script src="{{=URL('static','js/vendors/Flot/jquery.flot.stack.js')}}"></script>
+    <script src="{{=URL('static','js/vendors/Flot/jquery.flot.resize.js')}}"></script>
+    <!-- Flot plugins -->
+    <script src="{{=URL('static','js/vendors/flot.orderbars/js/jquery.flot.orderBars.js')}}"></script>
+    <script src="{{=URL('static','js/vendors/flot-spline/js/jquery.flot.spline.min.js')}}"></script>
+    <script src="{{=URL('static','js/vendors/flot.curvedlines/curvedLines.js')}}"></script>
+    <!-- DateJS -->
+    <script src="{{=URL('static','js/vendors/DateJS/build/date.js')}}"></script>
+    <!-- JQVMap -->
+    <script src="{{=URL('static','js/vendors/jqvmap/dist/jquery.vmap.js')}}"></script>
+    <script src="{{=URL('static','js/vendors/jqvmap/dist/maps/jquery.vmap.world.js')}}"></script>
+    <script src="{{=URL('static','js/vendors/jqvmap/examples/js/jquery.vmap.sampledata.js')}}"></script>
+    <!-- bootstrap-daterangepicker -->
+    <script src="{{=URL('static','js/vendors/moment/min/moment.min.js')}}"></script>
+    <script src="{{=URL('static','js/vendors/bootstrap-daterangepicker/daterangepicker.js')}}"></script>
+    
+    <!-- Datatables -->
+    <script src="{{=URL('static','js/vendors/datatables.net/js/jquery.dataTables.min.js')}}"></script>
+    <script src="{{=URL('static','js/vendors/datatables.net-bs/js/dataTables.bootstrap.min.js')}}"></script>
+    <script src="{{=URL('static','js/vendors/datatables.net-buttons/js/dataTables.buttons.min.js')}}"></script>
+    <script src="{{=URL('static','js/vendors/datatables.net-buttons-bs/js/buttons.bootstrap.min.js')}}"></script>
+    <script src="{{=URL('static','js/vendors/datatables.net-buttons/js/buttons.flash.min.js')}}"></script>
+    <script src="{{=URL('static','js/vendors/datatables.net-buttons/js/buttons.html5.min.js')}}"></script>
+    <script src="{{=URL('static','js/vendors/datatables.net-buttons/js/buttons.print.min.js')}}"></script>
+    <script src="{{=URL('static','js/vendors/datatables.net-fixedheader/js/dataTables.fixedHeader.min.js')}}"></script>
+    <script src="{{=URL('static','js/vendors/datatables.net-keytable/js/dataTables.keyTable.min.js')}}"></script>
+    <script src="{{=URL('static','js/vendors/datatables.net-responsive/js/dataTables.responsive.min.js')}}"></script>
+    <script src="{{=URL('static','js/vendors/datatables.net-responsive-bs/js/responsive.bootstrap.js')}}"></script>
+    <script src="{{=URL('static','js/vendors/datatables.net-scroller/js/dataTables.scroller.min.js')}}"></script>
+    <script src="{{=URL('static','js/vendors/jszip/dist/jszip.min.js')}}"></script>
+    <script src="{{=URL('static','js/vendors/pdfmake/build/pdfmake.min.js')}}"></script>
+    <script src="{{=URL('static','js/vendors/pdfmake/build/vfs_fonts.js')}}"></script>
+
+    <!-- Custom Theme Scripts -->
+    <script src="{{=URL('static','js/custom.min.js')}}"></script>
+
+  </body>
+</html>

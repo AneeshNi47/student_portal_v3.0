@@ -1,0 +1,500 @@
+{{extend 'layout.html'}}
+
+<div class="col-md-12 col-sm-12  ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2><i class="fa fa-bars"></i> Notifications <small> </small></h2>
+            <ul class="nav navbar-right panel_toolbox">
+                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                <li><a class="close-link"><i class="fa fa-close"></i></a></li>
+            </ul>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <ul class="nav nav-tabs bar_tabs"  id="myTab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="Batch_notifications" data-toggle="tab" href="#batchNotif" role="tab" aria-controls="home" aria-selected="true">
+                    {{if auth.has_membership(1) or auth.has_membership(2) or auth.has_membership(5):}}
+                            Batch Notifications
+                        {{else:}}
+                            Notifications
+                        {{pass}}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="student_notifications" data-toggle="tab" href="#studentNotif" role="tab" aria-controls="profile" aria-selected="false">
+                    {{if auth.has_membership(1) or auth.has_membership(2) or auth.has_membership(5):}}
+                        Student Notifications
+                    {{else:}}
+                        Sent Notifications
+                    {{pass}}
+                    </a>
+                </li>
+                {{if auth.has_membership(1) or auth.has_membership(2) or auth.has_membership(5):}}
+                    <li class="nav-item">
+                        <a class="nav-link" id="General" data-toggle="tab" href="#gnrNotify" role="tab" aria-controls="profile" aria-selected="false">General Notifications</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="General" data-toggle="tab" href="#recivedNotify" role="tab" aria-controls="profile" aria-selected="false">Recieved Notifications</a>
+                    </li>
+                {{pass}}
+            </ul>
+            <div class="tab-content" id="myTabContent">
+            {{if auth.has_membership(1) or auth.has_membership(2) or auth.has_membership(5):}}<!-----notification Batch for Non Student Login-->
+                <div class="tab-pane fade show active" id="batchNotif" role="tabpanel" aria-labelledby="batchNotif">
+					<div class="x_content">
+                        <div align="right">
+                            <a type="button" class="btn btn-round btn-success" href="" data-toggle="modal" data-target="#add_batchNotify"><i class="fa fa-plus"></i></a>
+                        </div>
+                        <ul class="list-unstyled timeline">
+                            {{for notifyb in B_notifications:}}
+                                {{if notifyb.is_active:}}
+                                <li>
+                                    <div class="block">
+                                        <div class="tags">
+                                            <a href="" class="tag">
+                                                <span>{{=notifyb.notif_use}}</span>
+                                            </a>
+                                        </div>
+                                        <div class="block_content">
+                                            <h2 class="title">
+                                                <a>{{=notifyb.Topic}}</a> <small>{{=db(db.Batch.id == notifyb.Given_to_B).select(db.Batch.Batch_title)[0].Batch_title}}</small>
+                                            </h2>
+                                            <div class="byline">
+                                                {{user = db(db.auth_user.id == notifyb.Given_by).select()}}
+                                                <span>{{=notifyb.set_date}}</span> by <a>{{=user[0].first_name}}</a>
+                                            </div>
+                                            <p class="excerpt">
+                                                {{=notifyb.Message_n}}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </li>
+                                {{pass}}
+                            {{pass}}
+                         </ul>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="studentNotif" role="tabpanel" aria-labelledby="studentNotif">
+                     <div class="x_content">
+                        <div align="right">
+                            <a type="button" class="btn btn-round btn-success" href="" data-toggle="modal" data-target="#add_studNotify"><i class="fa fa-plus"></i></a>
+                        </div>
+                        {{for notifys in S_notifications:}}
+                            <ul class="list-unstyled timeline">
+                                {{if notifys.is_active:}}
+                                <li>
+                                    <div class="block">
+                                        <div class="tags">
+                                            <a href="" class="tag">
+                                                <span>{{=notifys.notif_use}}</span>
+                                            </a>
+                                        </div>
+                                        <div class="block_content">
+                                            <h2 class="title">
+                                                <a>{{=notifys.Topic}}</a>
+                                                <small>
+                                                        {{=db(db.auth_user.id == notifys.Given_to_S).select(db.auth_user.first_name)[0].first_name}}
+                                                </small>
+                                            </h2>
+                                            <div class="byline">
+                                                {{user = db(db.auth_user.id == notifys.Given_by).select()}}
+                                                <span>{{=notifys.set_date}}</span> by <a>{{=user[0].first_name}}</a>
+                                            </div>
+                                            <p class="excerpt">
+                                                {{=notifys.Message_n}}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </li>
+                                {{pass}}
+                            </ul>
+                        {{pass}}
+                    </div>
+                </div>
+            {{else:}}
+            <!---Notifcation for Student Login to view all recieved notifications-->
+                <div class="tab-pane fade show active" id="batchNotif" role="tabpanel" aria-labelledby="batchNotif">
+					<div class="x_content">
+                        <div align="right">
+                            <a type="button" class="btn btn-round btn-success" href="" data-toggle="modal" data-target="#add_studRequest"><i class="fa fa-plus"></i></a>
+                        </div>
+                        <ul class="list-unstyled timeline">
+                            {{for notify in notifications:}}
+                                {{if notify.is_active:}}
+                                <li>
+                                    <div class="block">
+                                        <div class="tags">
+                                            <a href="" class="tag">
+                                                <span>{{=notify.notif_use}}</span>
+                                            </a>
+                                        </div>
+                                        <div class="block_content">
+                                            <h2 class="title">
+                                                <a>{{=notify.Topic}}</a> for
+                                                <small>
+                                                    {{ if notify.Given_to_B != None:}}
+                                                        {{=db(db.Batch.id == notify.Given_to_B).select(db.Batch.Batch_title)[0].Batch_title}}
+                                                    {{elif notify.Given_to_S == auth.user.id:}}
+                                                        You
+                                                    {{else:}}
+                                                        {{=notify.Given_to_ALL}}
+                                                    {{pass}}
+                                                </small>
+                                            </h2>
+                                            <div class="byline">
+                                                <span>{{=notify.set_date}}</span> by <a>{{=db(db.auth_user.id == notify.Given_by).select(db.auth_user.first_name)[0].first_name}}</a>
+                                                {{if notify.Status == "Open":}}
+                                                  |  <a data-toggle="tooltip" data-placement="top" title="Close Notification" style="color:green;"href="{{=URL('notifications','close_notification',vars=dict(notify_id=notify.id))}}">{{=notify.Status}} <i class="far fa-times-circle"></i></a>
+                                                {{else:}}
+                                                    | {{=notify.Status}}
+                                                {{pass}}
+                                            </div>
+                                            <p class="excerpt">
+                                                {{=notify.Message_n}}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </li>
+                                {{pass}}
+                            {{pass}}<!----pass for notify in this part-->
+                        </ul>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="studentNotif" role="tabpanel" aria-labelledby="studentNotif">
+                     <div class="x_content"><!---Notifcation for Student Login to view all sent notifications-->
+                        {{for notifys in S_notifications:}}
+                            {{if notifys.Given_by == auth.user.id:}}
+                             {{if notifys.is_active:}}
+                                <ul class="list-unstyled timeline">
+                                    <li>
+                                        <div class="block">
+                                            <div class="tags">
+                                                <a href="" class="tag">
+                                                    <span>{{=notifys.notif_use}}</span>
+                                                </a>
+                                            </div>
+                                            <div class="block_content">
+                                                <h2 class="title">
+                                                    <a>{{=notifys.Topic}}</a> to
+                                                    <small>
+                                                            {{=db(db.auth_user.id == notifys.Given_to_S).select(db.auth_user.first_name)[0].first_name}}
+                                                    </small>
+                                                </h2>
+                                                <div class="byline">
+                                                    <span>{{=notifys.set_date}}</span> by <a>You</a>
+                                                    {{if notifys.Status == "Open":}}
+                                                      <a style="color:green;"href="">{{=notify.Status}}</a>
+                                                    {{else:}}
+                                                       {{=notify.Status}}
+                                                {{pass}}
+                                                </div>
+                                                <p class="excerpt">
+                                                    {{=notifys.Message_n}}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                             {{pass}}
+                            {{pass}}
+                        {{pass}}
+                    </div>
+                </div>
+            {{pass}}
+            <!-----notification All for Non Student Login-->
+            {{if auth.has_membership(1) or auth.has_membership(2) or auth.has_membership(5):}}
+                <div class="tab-pane fade" id="gnrNotify" role="tabpanel" aria-labelledby="gnrNotify">
+                     <div class="x_content">
+                        <div align="right">
+                            <a type="button" class="btn btn-round btn-success" href="" data-toggle="modal" data-target="#add_allNotify"><i class="fa fa-plus"></i></a>
+                        </div>
+                        {{for notifyA in ALL_notifications:}}
+                         {{if notifyA.is_active:}}
+                            <ul class="list-unstyled timeline">
+                                <li>
+                                    <div class="block">
+                                        <div class="tags">
+                                            <a href="" class="tag">
+                                                <span>{{=notifyA.notif_use}}</span>
+                                            </a>
+                                        </div>
+                                        <div class="block_content">
+                                            <h2 class="title">
+                                                <a>{{=notifyA.Topic}}</a> for <small>{{=notifyA.Given_to_ALL}}</small>
+                                            </h2>
+                                            <div class="byline">
+                                                {{user = db(db.auth_user.id == notifyA.Given_by).select()}}
+                                                <span>{{=notifyA.set_date}}</span> by <a>{{=user[0].first_name}}</a>
+                                            </div>
+                                            <p class="excerpt">
+                                                {{=notifyA.Message_n}}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                         {{pass}}
+                        {{pass}}
+                    </div>
+				</div>
+                <!---------Non student Recived notifications--------------->
+                <div class="tab-pane fade" id="recivedNotify" role="tabpanel" aria-labelledby="gnrNotify">
+                     <div class="x_content">
+                        {{for recvNotif in recieved_notifications:}}
+                         {{if recvNotify.is_active:}}
+                            <ul class="list-unstyled timeline">
+                                <li>
+                                    <div class="block">
+                                        <div class="tags">
+                                            <a href="" class="tag">
+                                                <span>{{=recvNotif.notif_use}}</span>
+                                            </a>
+                                        </div>
+                                        <div class="block_content">
+                                            <h2 class="title">
+                                                <a>{{=recvNotif.Topic}}</a> for <small>You</small>
+                                            </h2>
+                                            <div class="byline">
+                                                <span>{{=recvNotif.set_date}}</span> by
+                                                <a>
+                                                    {{studUser = db(db.Student.Student_appID == recvNotif.Given_by).select()}}
+                                                     {{=studUser[0].Student_colgID}} - {{=studUser[0].F_Name}} {{=studUser[0].L_Name}}
+                                                </a>
+                                                {{if recvNotif.Status == "Open": }}
+                                                    <span><a data-toggle="tooltip" data-placement="top" title="Reject Request" style="color:red;"href="{{=URL('notifications','reject_notification',vars=dict(notify_id=recvNotif.id))}}"><i class="far fa-times-circle"></i></a></span>
+                                                    <span><a data-toggle="tooltip" data-placement="top" title="Approve Request" style="color:green;"href="{{=URL('notifications','approve_notification',vars=dict(notify_id=recvNotif.id))}}"><i class="far fa-check-circle"></i></a></span>
+                                                {{else:}}
+                                                    {{=recvNotif.Status}}
+                                                {{pass}}
+                                            </div>
+                                            <div class="byline">
+                                            {{if studUser[0].Batch: }}
+                                                Batch {{=db(db.Batch.id == studUser[0].Batch).select(db.Batch.Batch_title)[0].Batch_title}}
+                                            {{pass}}
+                                            </div>
+                                            <p class="excerpt">
+                                                {{=recvNotif.Message_n}}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                         {{pass}}
+                        {{pass}}
+                    </div>
+				</div>
+             {{pass}}
+        </div>
+    </div>
+</div>
+</div>
+</div>
+
+<div class="modal fade bs-example-modal-lg" id="add_batchNotify" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel2">Send Notification to Batch</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <form id="demo-form2" data-parsley-validate enctype='multipart/form-data' class="form-horizontal form-label-left" method="post" action="/init/notifications/add_notification">
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align">Notification Type</label>
+                        <div class="col-md-6 col-sm-6 ">
+                            <select id="notify_type" name="notify_type" class="form-control">
+                                <option value="Announcement">Announcement</option>
+                                <option value="Notice">Notice</option>
+                                <option value="Warning">Warning</option>
+                                <option value="Message">Message</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align" for="notify_topic">Topic<span class="required">*</span></label>
+                        <div class="col-md-6 col-sm-6 ">
+                            <input type="text" name="notify_topic" id="notify_topic" required="required" class="form-control ">
+                        </div>
+                    </div>
+
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align" for="notify_remarks">Message<span class="required">*</span></label>
+                        <div class="col-md-6 col-sm-6 ">
+                            <input type="text" name="notify_remarks" id="notify_remarks" required="required" class="form-control ">
+                        </div>
+                    </div>
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align">Subject</label>
+                        <div class="col-md-6 col-sm-6 ">
+                            <select id="notify_batch" name="notify_batch" class="form-control">
+                                {{for batch in batches:}}
+                                    <option value="{{=batch.id}}">{{=batch.Batch_title}}</option>
+                                {{pass}}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="item form-group">
+                        <div class="col-md-6 col-sm-6 offset-md-3">
+                            <button type="submit" class="btn btn-success">Submit</button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bs-example-modal-lg" id="add_studNotify" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel2">Send Notification to Students</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+            <form id="demo-form2" data-parsley-validate enctype='multipart/form-data' class="form-horizontal form-label-left" method="post" action="/init/notifications/add_notification">
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align">Notification Type</label>
+                        <div class="col-md-6 col-sm-6 ">
+                            <select id="notify_type" name="notify_type" class="form-control">
+                                <option value="Anouncement">Anouncement</option>
+                                <option value="Notice">Notice</option>
+                                <option value="Warning">Warning</option>
+                                <option value="Message">Message</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align" for="notify_topic">Topic<span class="required">*</span></label>
+                        <div class="col-md-6 col-sm-6 ">
+                            <input type="text" name="notify_topic" id="notify_topic" required="required" class="form-control ">
+                        </div>
+                    </div>
+
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align" for="notify_remarks">Message<span class="required">*</span></label>
+                        <div class="col-md-6 col-sm-6 ">
+                            <input type="text" name="notify_remarks" id="notify_remarks" required="required" class="form-control ">
+                        </div>
+                    </div>
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align">Student</label>
+                        <div class="col-md-6 col-sm-6 ">
+                            <select id="notify_student" name="notify_student" class="form-control">
+                                {{for student in students:}}
+                                    <option value="{{=student.id}}">{{=student.Student_colgID}} - {{=student.F_Name}} {{=student.L_Name}} </option>
+                                {{pass}}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="item form-group">
+                        <div class="col-md-6 col-sm-6 offset-md-3">
+                            <button type="submit" class="btn btn-success">Submit</button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bs-example-modal-lg" id="add_allNotify" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel2">Send General Notifications</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+            <form id="demo-form2" data-parsley-validate enctype='multipart/form-data' class="form-horizontal form-label-left" method="post" action="/init/notifications/add_notification">
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align">Notification Type</label>
+                        <div class="col-md-6 col-sm-6 ">
+                            <select id="notify_type" name="notify_type" class="form-control">
+                                <option value="Anouncement">Anouncement</option>
+                                <option value="Notice">Notice</option>
+                                <option value="Warning">Warning</option>
+                                <option value="Message">Message</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align" for="notify_topic">Topic<span class="required">*</span></label>
+                        <div class="col-md-6 col-sm-6 ">
+                            <input type="text" name="notify_topic" id="notify_topic" required="required" class="form-control ">
+                        </div>
+                    </div>
+
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align" for="notify_remarks">Message<span class="required">*</span></label>
+                        <div class="col-md-6 col-sm-6 ">
+                            <input type="text" name="notify_remarks" id="notify_remarks" required="required" class="form-control ">
+                        </div>
+                    </div>
+
+                    <div class="item form-group">
+                        <div class="col-md-6 col-sm-6 offset-md-3">
+                            <button type="submit" class="btn btn-success">Submit</button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bs-example-modal-lg" id="add_studRequest" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel2">Request Form</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+            <form id="demo-form2" data-parsley-validate enctype='multipart/form-data' class="form-horizontal form-label-left" method="post" action="/init/notifications/student_notification">
+
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align" for="notify_topic">Topic<span class="required">*</span></label>
+                        <div class="col-md-6 col-sm-6 ">
+                            <input type="text" name="notify_topic" id="notify_topic" required="required" class="form-control ">
+                        </div>
+                    </div>
+
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align" for="notify_remarks">Message<span class="required">*</span></label>
+                        <div class="col-md-6 col-sm-6 ">
+                            <input type="text" name="notify_remarks" id="notify_remarks" required="required" class="form-control ">
+                        </div>
+                    </div>
+
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align">Examiner</label>
+                        <div class="col-md-6 col-sm-6 ">
+                            <select id="notify_examiner" name="notify_examiner" class="form-control">
+                                {{for examiner in examiners:}}
+                                    <option value="{{=examiner.Ex_Appid}}">{{=examiner.Ex_Fname}} {{=examiner.Ex_Lname}}</option>
+                                {{pass}}
+                                {{for manager in managers:}}
+                                    <option value="{{=manager.Mg_Appid}}">{{=manager.Mg_Fname}} {{=manager.Mg_Lname}}</option>
+                                {{pass}}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="item form-group">
+                        <div class="col-md-6 col-sm-6 offset-md-3">
+                            <button type="submit" class="btn btn-success">Submit</button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

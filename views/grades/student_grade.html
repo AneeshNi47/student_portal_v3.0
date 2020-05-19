@@ -1,0 +1,119 @@
+{{extend 'layout.html'}}
+<script type="text/javascript">
+            function modal_value(value) {
+                var studID = $(value).data('id');
+                $(".modal-body #studID").val( studID );
+                $('#semester_add').modal('show');
+        }
+</script>
+<div class="col-md-12 col-sm-12 ">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2> {{=batch_name}} <small> Registered Students </small></h2>
+            <ul class="nav navbar-right panel_toolbox">
+                <li><a data-toggle="modal" data-target="#batch_addStudent"><i class="fa fa-plus"></i></a></li>
+                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                <li><a class="close-link"><i class="fa fa-close"></i></a></li>
+            </ul>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="card-box table-responsive">
+                        <p class="text-muted font-13 m-b-30">
+                            The table displays students registered under Batch {{=batch_name}}.
+                        </p>
+					    <table id="datatable-responsive" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>First name</th>
+                                    <th>Last name</th>
+                                    <th>Student ID</th>
+                                    <th>Joining</th>
+                                    <th>Email</th>
+                                    <th>Contact</th>
+                                    <th>Registration</th>
+                                    <th>Batch</th>
+                                    <th>Grade</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{for student in students:}}
+                                    <tr>
+                                        <title> Grades for {{=student.F_Name}} {{=student.L_Name}}</title>
+                                        <td>
+                                            {{if semesters:}}
+                                                <a href="{{=URL('grades','semester_grade',vars=dict(batch_id=batch_id, student_id=student.id, semester_id=semesters[0].id))}}">
+                                                    {{=student.F_Name}}
+                                                </a>
+                                            {{else:}}
+                                                {{=student.F_Name}}
+                                            {{pass}}
+                                        </td>
+                                        <td>{{=student.L_Name}}</td>
+                                        <td>{{=student.Student_colgID}}</td>
+                                        <td>{{=student.DoJ}}</td>
+                                        <td>{{=student.Email}}</td>
+                                        <td>{{=student.Contact}}</td>
+                                        <td>{{=student.DoR}}</td>
+                                        <td>{{=db(db.Batch.id == student.Batch).select(db.Batch.Batch_title)[0].Batch_title}}</td> 
+                                        <td>
+                                            <div class="btn-group">
+                                              <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                Add Grade
+                                              </button>
+                                              <div class="dropdown-menu">
+                                              {{if semesters:}}
+                                                {{for semester in semesters:}}
+                                                  <a class="dropdown-item" href="{{=URL('grades','semester_grade',vars=dict(batch_id=batch_id,student_id=student.id,semester_id=semester.id))}}">{{=semester.Semester_title}}</a>
+                                                {{pass}}
+                                              {{else:}}
+                                                <a class="dropdown-item" data-toggle="modal" onclick="modal_value(this)" data-id="{{=student.id}}" data-target="#semester_add" href="#">Create Semester</a>
+                                              {{pass}}
+                                              </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {{pass}}
+                            </tbody>
+                        </table>
+					</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<a type="button" href="{{=URL('grades','index')}}" class="btn btn-round btn-info">Back</a>
+            
+        <div class="modal fade bs-example-modal-lg" id="semester_add" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="myModalLabel2">Create Semester</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" method="get" action="/init/grades/semester_create">
+                            
+                            <input type="hidden"  name="batch_id" value="{{=batch_id}}">
+                            <input type="hidden"  name="batch_name" value="{{=batch_name}}"> 
+                            <input type="hidden"  id="studID" name="studID" value=""> 
+                                
+                            <div class="item form-group">
+                                <label class="col-form-label col-md-3 col-sm-3 label-align" for="first-name">Semester Title <span class="required">*</span></label>
+                                <div class="col-md-9 col-sm-9 ">
+                                    <input type="text" name="sem_title" id="sem_title" required="required" class="form-control ">
+                                </div>
+                            </div>
+                            <div class="item form-group">
+                                <div class="col-md-12 col-sm-12 offset-md-3">
+                                    <button type="submit" class="btn btn-success">Submit</button>
+                                </div>
+                            </div>
+                            
+                        </form>
+                     </div>
+                </div>
+            </div>
+        </div>

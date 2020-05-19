@@ -1,0 +1,183 @@
+{{extend 'layout.html'}}
+
+<style>
+#img-prof {
+  border-radius: 50%;
+}
+</style>
+
+<script type="text/javascript">
+    function modal_image(value) {
+        var image_src = $(value).data('id');
+        document.getElementById("myImg").src = image_src;
+    }
+</script>
+
+<script type="text/javascript">
+    function modal_value(value) {
+        var schId = $(value).data('id');
+        $(".modal-body #editinSch").val( schId );
+        $('#edit_schedule').modal('show');
+    }
+</script>
+
+<div class="col-md-10 col-sm-10">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Schedule for  <small>{{=batch[0].Batch_title}}</small></h2>
+            <ul class="nav navbar-right panel_toolbox">
+                <li><a data-toggle="modal" data-target="#add_schedule"><i class="fa fa-plus"></i></a></li>
+                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                <li><a class="close-link"><i class="fa fa-close"></i></a></li>
+            </ul>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <ul class="list-unstyled timeline">
+                {{schedule_in = db(db.Schedule.Batch == batch[0].id).select()}}
+                {{ for schedule in schedule_in:}}
+                            <li>
+                                <div class="block">
+                                    <div class="tags">
+                                         <a href="" class="tag">
+                                            {{if schedule.sch_type == 'Sub_start' or schedule.sch_type == 'Sub_end':}}
+                                                <span>Class</span>
+                                            {{else:}}
+                                                {{=schedule.sch_type}}
+                                            {{pass}}
+                                        </a> 
+                                    </div>
+                                    <div class="block_content">
+                                        <h2 class="title">
+                                            <a>{{=db(db.Subjects.id == schedule.Subject).select(db.Subjects.Subject_Name)[0].Subject_Name}}</a>
+                                        </h2>
+                                        <div class="row">
+                                            <div class="col-7">
+                                                <div class="byline">
+                                                    {{if schedule.sch_type == 'Sub_start':}}
+                                                        <span>Starting </span>
+                                                    {{elif schedule.sch_type == 'Sub_end':}}
+                                                        <span>Ending </span>
+                                                    {{else:}}
+                                                        {{=schedule.sch_type}}
+                                                    {{pass}}
+                                                    On
+                                                    <a>{{=schedule.Start_date}}</a><br>
+                                                    <a href="http://maps.google.com/maps?daddr={{=schedule.class_location}}" target="_blank">
+                                                        <i class="fas fa-map-marked-alt"></i> {{=schedule.class_location}}
+                                                    </a>
+                                                </div>
+                                                <p class="excerpt">{{=schedule.Remarks}}</p>
+                                                <br>
+                                                <br>
+                                                <a href="{{=URL('schedule','delete_schedule',vars=dict(batch_id=batch[0].id,sch_id=schedule.id))}}"><i class="fa fa-trash-o" aria-hidden="true"></i></a>
+                                            </div>
+                                            <div class="col-5">
+                                                <a onclick="modal_image(this)" data-toggle="modal" data-id="{{=URL('default', 'download', args=schedule.lect_profile)}}"  href="#lect_profile" >
+                                                    <i class="fas fa-chalkboard-teacher"></i>  {{=schedule.lecturer_name}}
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                {{pass}}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bs-example-modal-lg" id="add_schedule" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel2">Add Schedule</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <form id="demo-form2" data-parsley-validate enctype='multipart/form-data' class="form-horizontal form-label-left" method="post" action="/init/schedule/add_schedule">
+
+                    <input type="hidden"  name="sch_batch" value="{{=batchID}}">
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align">Activity</label>
+                        <div class="col-md-6 col-sm-6 ">
+                            <select id="sche_type" name="sche_type" class="form-control">
+                                <option value="Sub_start">Class Start</option>
+                                <option value="Sub_end">Class End</option>
+                                <option value="Exam">Exam</option>
+                                <option value="Session 1">Session 1</option>
+                                <option value="Session 2">Session 2</option>
+                                <option value="Session 3">Session 3</option>
+                                <option value="Session 4">Session 4</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align" for="sch_location">Location<span class="required">*</span></label>
+                        <div class="col-md-6 col-sm-6 ">
+                            <input type="text" name="sch_location" id="sch_location" required="required" class="form-control ">
+                        </div>
+                    </div>
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align" for="sch_lectname">Lecturer Name<span class="required">*</span></label>
+                        <div class="col-md-6 col-sm-6 ">
+                            <input type="text" name="sch_lectname" id="sch_lectname" required="required" class="form-control ">
+                        </div>
+                    </div>
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align" for="sch_lectprofile">Lecturer Profile<span class="required">*</span></label>
+                        <div class="col-md-6 col-sm-6 ">
+                            <input type="file" name="sch_lectprofile" id="sch_lectprofile" required="required" class="form-control ">
+                        </div>
+                    </div>
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align">Subject</label>
+                        <div class="col-md-6 col-sm-6 ">
+                            <select id="sch_sub" name="sch_sub" class="form-control">
+                                {{for subject in subjects:}}
+                                    <option value="{{=subject.id}}">{{=subject.Subject_Name}}</option>
+                                {{pass}}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align">Date <span class="required">*</span> </label>
+                        <div class="col-md-6 col-sm-6 ">
+                            <input id="start_date" class="date-picker form-control" name="start_date" required="required" type="date">
+                        </div>
+                    </div>
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align" for="batch_title">Remarks or Notes<span class="required">*</span></label>
+                        <div class="col-md-6 col-sm-6 ">
+                            <input type="text" name="sch_remarks" id="sch_remarks" required="required" class="form-control ">
+                        </div>
+                    </div>
+
+                    <div class="item form-group">
+                        <div class="col-md-6 col-sm-6 offset-md-3">
+                            <button type="submit" class="btn btn-success">Submit</button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade bs-example-modal-lg" id="lect_profile" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel2">Lecturer Profile</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body" align="center">
+                <img style="width:500px;height:500px;" class="img-responsive avatar-view" align="middle" id="myImg" src="#">
+            </div>
+        </div>
+    </div>
+</div>
+
+<a type="button" href="{{=URL('schedule','index')}}" class="btn btn-round btn-info">Back</a>

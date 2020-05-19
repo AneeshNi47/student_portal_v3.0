@@ -1,0 +1,92 @@
+{{extend 'layout.html'}}
+
+
+<div class="col-md-12 col-sm-12">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2>Degree Applications</h2>
+            <ul class="nav navbar-right panel_toolbox">
+                <li>
+                    <form id="demo-form2" data-parsley-validate enctype='multipart/form-data' class="form-horizontal form-label-left" method="post" action="/init/degree/index">
+                        <div class="item form-group">
+                            <div class="col-md-6 col-sm-6 ">
+                                <select id="query" name="query" class="form-control">
+                                    <option value="Document Submitted">Document Submitted</option>
+                                    <option value="Applied">Applied</option>
+                                    <option value="Recieved">Recieved</option>
+                                    <option value="Collected">Collected</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 col-sm-6">
+                                <button type="submit" class="btn btn-success">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </li>
+                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                <li><a class="close-link"><i class="fa fa-close"></i></a></li>
+            </ul>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <table id="datatable-buttons" class="table">
+            <title>-Degree Applications</title>
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>SBS ID</th>
+                        <th>Batch</th>
+                        <th>Document Date</th>
+                        <th>Applied Date</th>
+                        <th>Collected Date</th>
+                        <th>PC Agreement</th>
+                        <th>Graduation Form</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{for degree_stat in degree_stats:}}
+                        <tr>{{if degree_stat:}}
+                            <td>{{=db(db.Student.Student_appID == degree_stat.student_id).select(db.Student.F_Name)[0].F_Name}}</td>
+                            <td>{{=db(db.Student.Student_appID == degree_stat.student_id).select(db.Student.Student_colgID)[0].Student_colgID}}</td>
+                            <td>{{=db(db.Batch.id == degree_stat.batch_id).select(db.Batch.Batch_title)[0].Batch_title}}</td>
+                            <td>{{=degree_stat.Docs_date}}</td>
+                            <td>{{=degree_stat.applied_date}}</td>
+                            <td>{{=degree_stat.collected_date}}</td>
+                            {{if degree_stat.PC_agreement:}}
+                                <td><a href="{{=URL(f='download',args=degree_stat.PC_agreement)}}"><i class="fa fa-download" aria-hidden="true"></i></a></td>
+                            {{else:}}
+                                <td><a data-toggle="tooltip" data-placement="left" title="Document Pending"><i class="fas fa-minus"></i></a></td>
+                            {{pass}}
+                            {{if degree_stat.Graduation_form:}}
+                                <td><a href="{{=URL(f='download',args=degree_stat.Graduation_form)}}"><i class="fa fa-download" aria-hidden="true"></i></a></td>
+                            {{else:}}
+                                <td><a data-toggle="tooltip" data-placement="left" title="Document Pending"><i class="fas fa-minus"></i></a></td>
+                            {{pass}} 
+                            <td>
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        {{=degree_stat.status}}
+                                    </button>
+                                    <div class="dropdown-menu">
+                                        <a class="dropdown-item" href="{{=URL('degree','degree_applied',vars=dict(degree_id=degree_stat.id,student_id=degree_stat.student_id))}}">Degree Applied</a>
+                                        <a class="dropdown-item" href="{{=URL('degree','degree_recived',vars=dict(degree_id=degree_stat.id,student_id=degree_stat.student_id))}}">Degree Recieved</a>
+                                        <a class="dropdown-item" href="{{=URL('degree','degree_Collected',vars=dict(degree_id=degree_stat.id,student_id=degree_stat.student_id))}}">Degree Collected</a>
+                                        <a class="dropdown-item" href="{{=URL('degree','docs_rejected',vars=dict(degree_id=degree_stat.id,student_id=degree_stat.student_id))}}">Document Rejected</a>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <a href="{{=URL('degree','del_degree',vars=dict(degree_id=degree_stat.id))}}" id="view_modalBtn">
+                                  <i class="fa fa-trash" aria-hidden="true"></i>
+                                </a>
+                             </td>
+                            {{pass}}
+                        </tr>
+                    {{pass}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

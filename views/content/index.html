@@ -1,0 +1,137 @@
+{{extend 'layout.html'}}
+{{if auth.has_membership(1) | auth.has_membership(2) | auth.has_membership(5):}}
+<!-----------------------------Start of Course Table---------------------------------------->
+            <div class="col-md-12 col-sm-12  ">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2> Courses <small>Registered Courses</small></h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            {{if not auth.has_membership(1):}}
+                                <li><a data-toggle="modal" data-target="#batch_create"><i class="fa fa-plus"></i></a></li>
+                            {{pass}}
+                            <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                            <li><a class="close-link"><i class="fa fa-close"></i></a></li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Course Name</th>
+                                    <th>Specialization</th>
+                                    <th>Batches</th>
+                                    <th>Subjects</th>
+                                    <th>Content</th>
+                                    <th>Self Study</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{for course in courses:}}
+                                    {{for specialization in specializations:}}
+                                        {{batches = db((db.Batch.Batch_Course == course.id) & (db.Batch.Batch_Specialisation == specialization.id)).select(db.Batch.Batch_title)}}
+                                        {{if batches:}}
+                                            <tr>
+                                                <th scope="row">{{=course.id}}{{=specialization.id}}</th>
+                                                <td>{{=course.Course_Name}}</td>
+                                                <td>{{=specialization.specialization_Name}}</td>
+                                                <td>
+                                                    {{for batch in batches:}}
+                                                        {{=batch.Batch_title}}
+                                                        <br>
+                                                    {{pass}}
+                                                </td>
+                                                <td>{{=db((db.Subjects.Subject_Course == course.id) & (db.Subjects.Subject_Specialization == specialization.id)).count()}}</td>
+                                                <td><a href="{{=URL('content','course_view',vars=dict(course_id=course.id,spcl_id=specialization.id))}}" id="view_modalBtn"><i class="fa fa-eye fa-2x"></i></a></td>
+                                                <td><a href="{{=URL('content','self_study',vars=dict(course_id=course.id,spcl_id=specialization.id))}}" id="view_modalBtn"><i class="fa fa-eye fa-2x"></i></a></td>
+                                            </tr>
+                                        {{pass}}
+                                    {{pass}}
+                                {{pass}}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+{{pass}}
+
+
+{{if auth.has_membership(3):}}
+<!-----------------------------Start of Course Table---------------------------------------->
+<div class="col-md-6 col-sm-6">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2> Batch Contents  <small> Under Course of {{=db(db.Course.id == course).select(db.Course.Course_Name)[0].Course_Name}}</small></h2>
+            <ul class="nav navbar-right panel_toolbox">
+                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                <li><a class="close-link"><i class="fa fa-close"></i></a></li>
+            </ul>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Content Title</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{if contents:}}
+                    {{for subject in subjects:}}
+                        <tr>
+                            {{if db((db.Content_material.Subject_name == subject.id) & (db.Content_material.Batch_id == student_batch)).select():}}
+                                <td>{{=subject.Subject_Name}}</td>
+                                <td>
+                                    {{for content in contents:}}
+                                        {{if content.Subject_name == subject.id:}}
+                                            <br>
+                                            {{=content.Content_title}}
+                                            <a href="{{=URL(f='download', args =content.Content_file)}}"><i class="fas fa-file-alt"></i></a>
+                                        {{pass}}
+                                    {{pass}}
+                                </td>
+                            {{pass}}
+                        </tr>
+                    {{pass}}
+                    {{pass}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-6 col-sm-6">
+    <div class="x_panel">
+        <div class="x_title">
+            <h2> Self Study Contents <small> Under Course of {{=db(db.Course.id == course).select(db.Course.Course_Name)[0].Course_Name}}</small></h2>
+            <ul class="nav navbar-right panel_toolbox">
+                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+                <li><a class="close-link"><i class="fa fa-close"></i></a></li>
+            </ul>
+            <div class="clearfix"></div>
+        </div>
+        <div class="x_content">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Content Title</th>
+                        <th>File</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{for studyMaterial in studyMaterials:}}
+                        <tr>
+                            <td>{{=db(db.Subjects.id == studyMaterial.Subject_id).select(db.Subjects.Subject_Name)[0].Subject_Name}}</td>
+                            <td>{{=studyMaterial.SelfContent_title}}</td>
+                            <td><a href="{{=URL(f='download', args =studyMaterial.selfStudy_file)}}"><i class="fas fa-file-alt"></i></a></td>
+                        </tr>
+                    {{pass}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{{pass}}
