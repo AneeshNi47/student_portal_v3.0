@@ -44,7 +44,7 @@ db.define_table('Assignments',
                 Field('Origianl_content','upload', uploadfolder=os.path.join(request.folder, 'static/assignemnt')),
                 auth.signature,
                 format='%(Assignemnt_title)s')
-                
+
 db.define_table('Assignment_content',
                 Field('Assignemnt_title','reference Assignments'),
                 Field('Student_ID','reference Student'),

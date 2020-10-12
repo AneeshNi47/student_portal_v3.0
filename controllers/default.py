@@ -18,24 +18,92 @@ def index():
     to decorate functions that need access control
     also notice there is http://..../[app]/appadmin/manage/auth to allow administrator to manage users
     """
+    message = " "
+    def invalid_login():
+        table_user = auth.table_user()
+        username = auth.settings.login_userfield or 'username' if 'username' in table_user.fields else 'email'
+
+        if username in request.vars:
+            entered_username = request.vars[username]
+            if auth.settings.multi_login and '@' in entered_username:
+                # if '@' in username check for email, not username
+                user = table_user(email = entered_username)
+            else:
+                user = table_user(**{username: entered_username})
+
+            if user:
+                # If the user exists then the password must be invalid
+                return auth.messages.invalid_password
+            return auth.messages.invalid_user
+        else:
+            return " "
+    
+    auth.settings.login_onaccept = log_entry
+    auth.messages.invalid_login = invalid_login()
     auth.settings.login_next = URL('default','home')
-    return dict(form=auth())
- 
+    return dict(form=auth(),message = auth.messages.invalid_login)
+
+
+def log_entry(form):
+    db.activity_log.insert(Title_entry="Login By User",
+                            referance_id=auth.user.id,
+                            remarks="Login")
+    db.commit()
+    print("hello")
+
 
 @auth.requires_login() #home page view elements and variables
 def home():
     locations = db(db.C_Location).select()
-    batches = db(db.Batch).select()
-    courses = db(db.Course).select()
+    if auth.user.id == 1149 or auth.user.id == 1583:
+        courses = db(db.Course.id.belongs((4,5,6,7,8))).select()
+        batches = db(db.Batch.id.belongs((64,76))).select()
+    else:
+        batches = db(db.Batch).select()
+        courses = db(db.Course).select()
     specialisations = db(db.Specialization).select()
     if auth.has_membership(4) or auth.has_membership(3):
         student = db(db.Student.Student_appID == auth.user.id).select()
+        semester = db(db.Semester.Batch_id == student[0].Batch).select().first()
+        course_name = db(db.Batch.id == student[0].Batch).select()
+        course = db(db.Batch.id == student[0].Batch).select(db.Batch.Batch_Course)[0].Batch_Course
+        spcl = db(db.Batch.id == student[0].Batch).select(db.Batch.Batch_Specialisation)[0].Batch_Specialisation
+        student_query = db.Grades.Student_id == student[0].id
+        
+        if semester:
+            semester_query = db.Grades.Semester_id == semester.id
+            Completed_subjects = db((student_query & semester_query) & (db.Grades.Grade != "Fail")).count()
+            if course_name[0].Batch_Course == 6:
+                MOAR_list = ['Module 1 - Management Research Perspective',
+                            'Module 2 - Information Technologies for Business Research',
+                            'Module 3 - Global Environments and Management Trends',
+                            'Module 4 - Critique Analysis of Research',
+                            'Module 5 - Contemporary Management',
+                            'Module 6 -Research Methods in Business & Management',
+                            'Module 7 - Management Research Design & Methodologies',
+                            'Module 8 - Preparation and Presentation of a Research Proposal',
+                            'Comprehensive Exam']
+                flag = False
+                count = 0
+                grades_subs = db((student_query & semester_query) & (db.Grades.Grade != "Fail")).select()
+                for grades_sub in grades_subs:
+                    if db(db.Subjects.id == grades_sub.Subject).select(db.Subjects.Subject_Name)[0].Subject_Name not in MOAR_list:
+                        count = count + 1
+                MOAR_degree_application = db(db.MOARDegree_file.student_id == auth.user.id).select()
+        else:
+            Completed_subjects = 0
+
+        if (course_name[0].Batch_Course != 3) and (course_name[0].Batch_Course != 4):
+            Total_subjects = 12 #<!--Students not in CEO & BBA3Y will have 12 subjectss-->
+        else:
+            Total_subjects = db((db.Subjects.Subject_Course == course) & (db.Subjects.Subject_Specialization == spcl)).count()
+        degree_application = db(db.Degree_file.student_id == auth.user.id).select()
     return locals()
  
 
 @auth.requires_login() #home page view elements and variables
 def add_degree():
-    db.Degree_file.insert(  student_id=request.vars.student_id,
+    ret = db.Degree_file.validate_and_insert(  student_id=request.vars.student_id,
                             batch_id=request.vars.batch_id,
                             status="Documents Submitted",
                             PC_agreement=request.vars.pcdoc,
@@ -48,13 +116,66 @@ def add_degree():
                                 Given_by=auth.user.id,
                                 Given_to_S=4,)
     db.commit()
+    if ret.errors:
+        error_mark = ret.errors
+    else:
+        error_mark = "No Errors"
     db.activity_log.insert(Title_entry="Degree Request",
+                            referance_id=auth.user.id,
+                            remarks="Verification requested with {}".format(error_mark))
+    db.commit()
+    redirect(URL('default','home'))
+    return response.json({'status':'success'})
+ 
+
+@auth.requires_login() #home page view elements and variables
+def add_MOARDdegree():
+    ret = db.MOARDegree_file.validate_and_insert(  student_id=request.vars.student_id,
+                            batch_id=request.vars.batch_id,
+                            status="Documents Submitted",
+                            PC_agreement=request.vars.pcdoc,
+                            Graduation_form=request.vars.graddoc,
+                            Docs_date=today)
+    db.commit()
+    db.Notifications.insert(    notif_use="Request",
+                                Topic="MOAR Degree application",
+                                Message_n="MOAR Documents have been uploaded",
+                                Given_by=auth.user.id,
+                                Given_to_S=4,)
+    db.commit()
+    if ret.errors:
+        error_mark = ret.errors
+    else:
+        error_mark = "No Errors"
+    db.activity_log.insert(Title_entry="MOAR Degree Request",
+                            referance_id=auth.user.id,
+                            remarks="Verification requested with {}".format(error_mark))
+    db.commit()
+    redirect(URL('default','home'))
+    return response.json({'status':'success'})
+
+
+@auth.requires_login() #home page view elements and variables
+def reapply_MOARDdegree():
+    ret = db(db.MOARDegree_file.id == request.vars.degreeId).validate_and_update(   student_id=request.vars.student_id,
+                                                                                batch_id=request.vars.batch_id,
+                                                                                status="Documents Submitted",
+                                                                                PC_agreement=request.vars.pcdoc,
+                                                                                Graduation_form=request.vars.graddoc,
+                                                                                Docs_date=today)
+    db.commit()
+    db.Notifications.insert(    notif_use="Request",
+                                Topic="MOAR Degree Re-application",
+                                Message_n="MOAR Documents have been uploaded",
+                                Given_by=auth.user.id,
+                                Given_to_S=4,)
+    db.commit()
+    db.activity_log.insert(Title_entry="MOAR Degree ReApply", 
                             referance_id=auth.user.id,
                             remarks="verification requested")
     db.commit()
     redirect(URL('default','home'))
     return response.json({'status':'success'})
-
 
 @auth.requires_login() #home page view elements and variables
 def reapply_degree():
@@ -79,7 +200,6 @@ def reapply_degree():
     return response.json({'status':'success'})
 
 
-
 @auth.requires_login() #home page view elements and variables
 def add_image():
     ret = db(db.Student.Student_appID == auth.user.id).validate_and_update(icon_image=request.vars.prof_image)
@@ -90,6 +210,7 @@ def add_image():
     db.commit()
     redirect(URL('default','home'))
     return response.json(ret)
+
 
 @auth.requires_login() #home page view elements and variables
 def request_verify():
@@ -103,7 +224,7 @@ def request_verify():
                             referance_id=auth.user.id,
                             remarks="verification requested")
     db.commit()
-    redirect(URL('default','home'))   
+    redirect(URL('default','home'))
     return locals()
 
 @auth.requires(auth.has_membership('Examiner') or auth.has_membership('Admin') or auth.has_membership('Management'))
@@ -111,7 +232,12 @@ def batch_elements():
     locations = db(db.C_Location).select()
     courses = db(db.Course).select()
     specializations = db(db.Specialization).select()
-    batches = db(db.Batch).select()
+    if auth.user.id == 1149:
+        batches = db(db.Batch.id.belongs((64,76))).select()
+    elif auth.user.id == 1583:
+        batches = db(db.Batch.id==76).select()
+    else:
+        batches = db(db.Batch).select()
     return locals()
 
 @auth.requires(auth.has_membership('Examiner') or auth.has_membership('Admin') or auth.has_membership('Management'))# batch page subject view and variables
@@ -149,9 +275,13 @@ def del_subject():
 def edit_subject():
     batch_id = request.vars.batchid
     batch_name = request.vars.batchname
+    old_name = db(db.Subjects.id == request.vars.subjectId).select(db.Subjects.Subject_Name)[0].Subject_Name
     db(db.Subjects.id == request.vars.subjectId).update(Subject_Name=request.vars.new_sub)
     db.commit()
-    db.activity_log.insert(Title_entry=request.vars.new_sub, referance_id=request.vars.subjectId,remarks="edit subject from subbatch view")
+    db.activity_log.insert(
+                            Title_entry=request.vars.new_sub, 
+                            referance_id=auth.user.id,
+                            remarks="Subject Name changed from {} to {}".format(old_name, request.vars.new_sub))
     db.commit()
     redirect(URL('default','subbatch_view',vars=dict(batch_name=request.vars.batchname,batch_id=request.vars.batchid)))
     return locals()
@@ -336,6 +466,7 @@ def user():
     to decorate functions that need access control
     also notice there is http://..../[app]/appadmin/manage/auth to allow administrator to manage users
     """
+    db.auth_user.username.writable = False
     return dict(form=auth())
 
 # ---- action to server uploaded static content (required) ---

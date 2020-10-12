@@ -51,13 +51,27 @@ db.define_table('activity_log',
                 Field('remarks', 'text'),
                 auth.signature
              )
-                  
+
+
 db.define_table('Degree_file',
                 Field('student_id','reference auth_user'),
                 Field('batch_id', 'reference Batch'),
                 Field('status', requires=IS_IN_SET(degree_status)),
                 Field('PC_agreement','upload', uploadfolder=os.path.join(request.folder, 'static/entrance_docs1')),
                 Field('Graduation_form','upload', uploadfolder=os.path.join(request.folder, 'static/entrance_docs1')),
+                Field('Docs_date','date'),
+                Field('applied_date',  'date'),
+                Field('collected_date',  'date'),
+                auth.signature
+                )
+
+
+db.define_table('MOARDegree_file',
+                Field('student_id','reference auth_user'),
+                Field('batch_id', 'reference Batch'),
+                Field('status', requires=IS_IN_SET(degree_status)),
+                Field('PC_agreement','upload', uploadfolder=os.path.join(request.folder, 'static/MOARentrance_docs1')),
+                Field('Graduation_form','upload', uploadfolder=os.path.join(request.folder, 'static/MOARentrance_docs1')),
                 Field('Docs_date','date'),
                 Field('applied_date',  'date'),
                 Field('collected_date',  'date'),

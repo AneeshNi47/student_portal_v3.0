@@ -73,9 +73,9 @@
                     Admin
                   {{elif auth.has_membership(2):}}
                     Examiner
-                  {{elif auth.has_membership(3):}}  
+                  {{elif auth.has_membership(3):}}
                     Student
-                  {{pass}}      
+                  {{pass}}
                 </h3>
                 <ul class="nav side-menu">
                   {{for _item in response.menu or []:}}
@@ -194,16 +194,14 @@
                       {{if notification != None:}}
                         {{if notification.Status == "Open":}}
                         <li class="nav-item">
-                          <a class="dropdown-item">
+                          <a class="dropdown-item" href="{{=URL('notifications','index')}}">
                             <span class="image"><img src="{{=URL('static','fa_ATMS_PNG.png')}}" alt="Profile Image" /></span>
                             <span>
                             {{person = db(db.auth_user.id == notification.Given_by).select()}}
-                              <span>{{=person[0].first_name}} {{=person[0].last_name}}</span>
-                              <span class="time">{{=notification.set_date}}</span>
+                                 <span>{{=person[0].first_name}} {{=person[0].last_name}}</span>
+                                  <br><span class="time">{{=notification.set_date}}</span>
+                                  <br><span class="message">{{=notification.Message_n}} </span>
                             </span>
-                          <span class="message">
-                            {{=notification.Message_n}}
-                          </span>
                         </a>
                         </li>
                         {{pass}}

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 {
+' ': ' ',
 '!langcode!': 'pl',
 '!langname!': 'Polska',
 '"update" is an optional expression like "field1=\'newvalue\'". You cannot update or delete the results of a JOIN': '"Uaktualnij" jest dodatkowym wyrażeniem postaci "pole1=\'nowawartość\'". Nie możesz uaktualnić lub usunąć wyników z JOIN:',

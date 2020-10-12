@@ -6,6 +6,12 @@
         $(".modal-body #degreeId").val( degreeId );
     }
 </script>
+<script type="text/javascript">
+    function modal_MOARvalue(value) {
+        var degreeId = $(value).data('degree');
+        $(".modal-body #degreeId").val( degreeId );
+    }
+</script>
 
 {{if auth.has_membership(4) or auth.has_membership(3):}}
 <div class="row">
@@ -14,32 +20,28 @@
       <div class="x_title">
         <h2>Profile</h2>
         <ul class="nav navbar-right panel_toolbox">
-              {{semester = db(db.Semester.Batch_id == student[0].Batch).select().first()}}
-              {{course_name = db(db.Batch.id == student[0].Batch).select()}}
-              {{student_query = db.Grades.Student_id == student[0].id}}
-              {{if semester:}}
-                 {{semester_query = db.Grades.Semester_id == semester.id}}
-                 {{Completed_subjects = db((student_query & semester_query) & (db.Grades.Grade != "Fail")).count()}}
-              {{else:}}
-                 {{Completed_subjects = 0}}
-              {{pass}}
-              {{course = db(db.Batch.id == student[0].Batch).select(db.Batch.Batch_Course)[0].Batch_Course}}
-              {{spcl = db(db.Batch.id == student[0].Batch).select(db.Batch.Batch_Specialisation)[0].Batch_Specialisation}}
-              {{if (course_name[0].Batch_Course != 3) and (course_name[0].Batch_Course != 4) and (course_name[0].Batch_Course != 6):}}
-                   {{Total_subjects = 12}}<!--Students not in CEO,BBA3Y & DBA will have 12 subjectss-->
-               {{else:}}
-                    {{Total_subjects = db((db.Subjects.Subject_Course == course) & (db.Subjects.Subject_Specialization == spcl)).count()}}
-                {{pass}}
-              {{degree_application = db(db.Degree_file.student_id == auth.user.id).select()}}
-              {{if not degree_application:}}
-                {{if Completed_subjects == Total_subjects:}}
-                  <button data-toggle="modal" href="#apply_degree" onclick="modal_value(this)" data-id="{{=student[0].Batch}}" type="button" class="btn btn-secondary">Apply Degree</button>
-                {{pass}}
-              {{else:}}
-                {{if degree_application[0].status == "Documents Rejected":}}
-                  <button data-toggle="modal" href="#reapply_degree" onclick="modal_value(this)" data-id="{{=student[0].Batch}}" data-degree="{{=degree_application[0].id}}" type="button" class="btn btn-secondary">Re-Apply Degree</button>
+          {{if semester:}}
+            {{if course_name[0].Batch_Course == 6:}}
+              {{if count == 0:}}
+                {{if not MOAR_degree_application:}}
+                  <button data-toggle="modal" href="#apply_MOARdegree" onclick="modal_MOARvalue(this)" data-id="{{=student[0].Batch}}" type="button" class="btn btn-secondary">Apply MOAR</button>
+                {{else:}}
+                  {{if MOAR_degree_application[0].status == "Documents Rejected":}}
+                    <button data-toggle="modal" href="#reapply_MOARdegree" onclick="modal_MOARvalue(this)" data-id="{{=student[0].Batch}}" data-degree="{{=MOAR_degree_application[0].id}}" type="button" class="btn btn-secondary">Re-Apply MOAR</button>
+                  {{pass}}
                 {{pass}}
               {{pass}}
+            {{pass}}
+          {{pass}}
+          {{if not degree_application:}}
+            {{if Completed_subjects >= Total_subjects:}}
+              <button data-toggle="modal" href="#apply_degree" onclick="modal_value(this)" data-id="{{=student[0].Batch}}" type="button" class="btn btn-secondary">Apply Degree</button>
+            {{pass}}
+          {{else:}}
+            {{if degree_application[0].status == "Documents Rejected":}}
+              <button data-toggle="modal" href="#reapply_degree" onclick="modal_value(this)" data-id="{{=student[0].Batch}}" data-degree="{{=degree_application[0].id}}" type="button" class="btn btn-secondary">Re-Apply Degree</button>
+            {{pass}}
+          {{pass}}
           <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
           <li><a class="close-link"><i class="fa fa-close"></i></a></li>
         </ul>
@@ -59,7 +61,7 @@
             </div>
           </div>
             <h3>{{=student[0].F_Name}} {{=student[0].L_Name}}</h3>
-            <h4><b>SBS ID:</b> {{=student[0].Student_colgID}}</h4>
+            <h4><b>Student ID:</b> {{=student[0].Student_colgID}}</h4>
             <ul class="list-unstyled user_data">
               <li><i class="fa fa-map-marker user-profile-icon"></i> {{=student[0].Birth_place}}, {{=student[0].Birth_country}}</li>
                   <li><i class="fa fa-briefcase user-profile-icon"></i> {{=db(db.Batch.id == student[0].Batch).select(db.Batch.Batch_title)[0].Batch_title}}</li>
@@ -128,6 +130,88 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title" id="myModalLabel2">Add Graduation Forms and Agreements</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <form id="demo-form2" data-parsley-validate enctype='multipart/form-data' class="form-horizontal form-label-left" method="post" action="/init/default/reapply_degree">
+
+                    <input type="hidden"  id="degreeId" name="degreeId" value="">
+                    <input type="hidden"  name="student_id" value="{{=student[0].id}}">
+                    <input type="hidden"  id="batch_id" name="batch_id" value="{{=student[0].Batch}}">
+                    <h6>
+                      Please upload the completed
+                      <a href="{{=URL('static','SBS_Graduation_Form.docx')}}"><i class="fa fa-download" aria-hidden="true"></i> SBS Graduation Form</a>
+                      &
+                      <a href="{{=URL('static','Publications_Confidentiality_Agreement.pdf')}}"><i class="fa fa-download" aria-hidden="true"></i> Publications Confidentiality Agreement</a>
+                    </h6>
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align">SBS Graduation Form<span class="required">*</span></label>
+                        <div class="col-md-6 col-sm-6 ">
+                            <input id="graddoc" class="date-picker form-control" value="graddoc" name="graddoc" required="required" type="file">
+                        </div>
+                    </div>
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align">Publications Confidentiality Agreement<span class="required">*</span></label>
+                        <div class="col-md-6 col-sm-6 ">
+                            <input id="pcdoc" class="date-picker form-control" value="pcdoc" name="pcdoc" required="required" type="file">
+                        </div>
+                    </div>
+                    <div class="item form-group">
+                        <div class="col-md-6 col-sm-6 offset-md-3">
+                            <button type="submit" class="btn btn-success">Submit</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bs-example-modal-lg" id="apply_MOARdegree" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel2">Add Graduation Forms for MOAR</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <form id="demo-form2" data-parsley-validate enctype='multipart/form-data' class="form-horizontal form-label-left" method="post" action="/init/default/add_degree">
+                    <input type="hidden"  name="student_id" value="{{=auth.user.id}}">
+                    <input type="hidden"  id="batch_id" name="batch_id" value="{{=student[0].Batch}}">
+                    <h6>
+                      Please upload the completed
+                      <a href="{{=URL('static','SBS_Graduation_Form.docx')}}"><i class="fa fa-download" aria-hidden="true"></i> SBS Graduation Form</a>
+                      &
+                      <a href="{{=URL('static','Publications_Confidentiality_Agreement.pdf')}}"><i class="fa fa-download" aria-hidden="true"></i> Publications Confidentiality Agreement</a>
+                    </h6>
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align">SBS Graduation Form<span class="required">*</span></label>
+                        <div class="col-md-6 col-sm-6 ">
+                            <input id="graddoc" class="date-picker form-control" value="graddoc" name="graddoc" required="required" type="file">
+                        </div>
+                    </div>
+                    <div class="item form-group">
+                        <label class="col-form-label col-md-3 col-sm-3 label-align">Publications Confidentiality Agreement<span class="required">*</span></label>
+                        <div class="col-md-6 col-sm-6 ">
+                            <input id="pcdoc" class="date-picker form-control" value="pcdoc" name="pcdoc" required="required" type="file">
+                        </div>
+                    </div>
+                    <div class="item form-group">
+                        <div class="col-md-6 col-sm-6 offset-md-3">
+                            <button type="submit" class="btn btn-success">Submit</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bs-example-modal-lg" id="reapply_MOARdegree" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel2">Re-apply Graduation Forms for MOAR</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
             </div>
             <div class="modal-body">

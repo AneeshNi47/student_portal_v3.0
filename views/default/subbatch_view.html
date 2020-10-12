@@ -67,14 +67,13 @@
             </div>
             <div class="modal-body">
                 <form id="add_subjectForm" data-parsley-validate class="form-horizontal form-label-left" method="get" action="/init/default/edit_subject">
-                                
                     <div class="item form-group">
                         <label class="col-form-label col-md-6 col-sm-6 label-align" for="new_sub">Subject Name <span class="required">*</span></label>
                         <div class="col-md-6 col-sm-6 ">
                             <input type="text" name="new_sub" id="new_sub" required="required" class="form-control ">
                         </div>
                     </div>
-                    <input type="text" id="subjectId" name="subjectId" value="">
+                    <input type="hidden" id="subjectId" name="subjectId" value="">
                     <input type="hidden" id="batchid" name="batchid" value="{{=batch_id}}">
                     <input type="hidden" id="batchname" name="batchname" value="{{=batch_name}}">
                     <div class="item form-group">

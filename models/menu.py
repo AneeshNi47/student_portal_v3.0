@@ -28,15 +28,21 @@ if auth.has_membership('Admin'):
 
 
 if auth.has_membership('Examiner'):
-    	response.menu += (
-            (T('Batch Elements'), False, URL('default', 'batch_elements'), []),
-            (T('Content'), False, URL('content','index'), []),
-            (T('Assignments'), False, URL('assignments', 'index'), []),
-            (T('Notifications'), False, URL('notifications','index'), []),
-            (T('Grades'), False, URL('grades','index'), []),
-            (T('Schedule'), False, URL('schedule','index'), []),
-            (T('Degree'), False, URL('degree','index'), [])
-        )
+        if auth.user.id == 1149 or auth.user.id == 1583:
+            response.menu += (
+                (T('Batch Elements'), False, URL('default', 'batch_elements'), []),
+                (T('Assignments'), False, URL('assignments', 'index'), []),
+                (T('Grades'), False, URL('grades','index'), []),)
+        else:
+            response.menu += (
+                (T('Batch Elements'), False, URL('default', 'batch_elements'), []),
+                (T('Content'), False, URL('content','index'), []),
+                (T('Assignments'), False, URL('assignments', 'index'), []),
+                (T('Notifications'), False, URL('notifications','index'), []),
+                (T('Grades'), False, URL('grades','index'), []),
+                (T('Schedule'), False, URL('schedule','index'), []),
+                (T('Degree'), False, URL('degree','index'), [])
+            )
 
 if auth.has_membership('Management'):
     	response.menu += (

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 {
+' ': ' ',
 '!langcode!': 'ru',
 '!langname!': 'Русский',
 '"update" is an optional expression like "field1=\'newvalue\'". You cannot update or delete the results of a JOIN': '"Изменить" - необязательное выражение вида "field1=\'новое значение\'". Результаты операции JOIN нельзя изменить или удалить.',
@@ -200,8 +201,8 @@
 'Preface': 'Preface',
 'previous %s rows': 'previous %s rows',
 'previous 100 rows': 'предыдущие 100 строк',
-'profile': 'профиль',
 'Profile': 'Profile',
+'profile': 'профиль',
 'Profile updated': 'Profile updated',
 'pygraphviz library not found': 'pygraphviz library not found',
 'Python': 'Python',

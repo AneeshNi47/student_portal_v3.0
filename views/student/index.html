@@ -72,6 +72,7 @@
                                     <th>Secondary Contact</th>
                                     <th>Joining</th>
                                     <th>Registration</th>
+                                    <th>Reset Password</th>
                                     <th>Delete</th>
                                 </tr>
                             </thead>
@@ -143,6 +144,11 @@
                                         <td>
                                             <a onclick="modal_value(this)" data-toggle="modal" data-id="{{=student.id}}" data-toggle="modal" class="identifyingClass" href="#edit_dor" >
                                                 {{=student.DoR}}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="{{=URL('student','reset_password',vars=dict(studentId=student.id))}}" id="view_modalBtn">
+                                                {{=student.id}}<i class="fa fa-wrench" aria-hidden="true"></i>
                                             </a>
                                         </td>
                                         <td>

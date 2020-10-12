@@ -85,8 +85,15 @@
                         {{for grade in grades:}}
                             <tr>
                                 {{if grade.Semester_id == semester.id:}}
-                                    <td>{{=db(db.Subjects.id == grade.Subject).select(db.Subjects.Subject_Name)[0].Subject_Name}}</td>
-                                    <td>{{=grade.Mark}}</td>
+                                    {{subject = db(db.Subjects.id == grade.Subject).select().first()}}
+                                    <td>{{=subject.Subject_Name}}</td>
+                                    <td>
+                                        {{if subject.Subject_Name in ["Comprehensive Exam","Module 2 - Information Technologies for Business Research"]:}}
+                                            <i class="fa fa-minus" aria-hidden="true"></i>
+                                        {{else:}}
+                                            {{=grade.Mark}}
+                                        {{pass}}
+                                    </td>
                                     <td>{{=grade.Grade}}</td>
                                     <td>{{=grade.Remarks}}</td>
                                 {{pass}}

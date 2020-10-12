@@ -66,16 +66,18 @@
                         </div>
                     </div>
                     <div class="item form-group">
-                        <label class="col-form-label col-md-3 col-sm-3 label-align">Subject</label>
+                        <label class="col-form-label col-md-3 col-sm-3 label-align">Student</label>
                         <div class="col-md-6 col-sm-6 ">
-                            <select id="student_id" name="student_id" class="form-control">
+                            <input list="student_id" name="student_id" id="browser" class="form-control">
+                            <datalist id="student_id" name="student_id">
                                 {{for batch in batches:}}
                                     {{students = db(db.Student.Batch == batch.id).select()}}
                                     {{for student in students:}}
-                                        <option value="{{=student.id}}">{{=student.Student_colgID}}:{{=student.F_Name}} {{=student.L_Name}}</option>
+                                        <option value="{{=student.id}}">
+                                            {{=student.Student_colgID}}:{{=student.F_Name}} {{=student.L_Name}}
                                     {{pass}}
                                 {{pass}}
-                            </select>
+                            </datalist>
                         </div>
                     </div>
                     <div class="item form-group">

@@ -1,6 +1,9 @@
 @auth.requires(auth.has_membership('Examiner') or auth.has_membership('Admin') or auth.has_membership('Management') or auth.has_membership('Student'))
 def index():
-    courses = db(db.Course).select()
+    if auth.user.id == 1149:
+        courses = db(db.Course.id.belongs((4,5,6,7,8))).select()
+    else:
+        courses = db(db.Course).select()
     specializations = db(db.Specialization).select()
     if auth.has_membership(3):
         student = db(db.Student.Student_appID == auth.user.id).select()

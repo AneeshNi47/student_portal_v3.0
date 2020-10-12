@@ -1,7 +1,10 @@
 @auth.requires(auth.has_membership('Examiner') or auth.has_membership('Student') or auth.has_membership('Admin') or auth.has_membership('Management'))
 def index():
     if not auth.has_membership(3):
-        batches = db(db.Batch).select(orderby=db.Batch.Batch_title)
+        if auth.user.id == 1149:
+            batches = db(db.Batch.Batch_Course.belongs((4,5,6,7,8))).select(orderby=db.Batch.Batch_title)
+        else:
+            batches = db(db.Batch).select(orderby=db.Batch.Batch_title)
         schedules = db(db.Schedule).select()
     else:
         student = db(db.Student.Student_appID == auth.user.id).select()

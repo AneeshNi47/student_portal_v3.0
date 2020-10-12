@@ -1,16 +1,24 @@
 {{extend 'layout.html'}}
-    <!---Select2 custom style and js file (dropdown select file)--->
-      <link href="{{=URL('static','js/dist/css/select2.min.css')}}" rel="stylesheet" />
-<script>
-    $(document).ready(function(){
-  // Initialize select2
-  $("#student_id").select2({
-        dropdownParent: $('#student_addassignment .modal-body')
-        });
-    });
-    $.fn.modal.Constructor.prototype._enforceFocus = function() {};
-</script>
 
+<script type="text/javascript">
+    function modal_value(value) {
+        var assignId = $(value).data('id');
+        $(".modal-body #assignId").val( assignId );
+        $('#assignment_edit').modal('show');
+    }
+</script>
+<script type="text/javascript">
+    function modal_STvalue(value) {
+        var assignId = $(value).data('id');
+        $(".modal-body #assignSTId").val( assignId );
+        $('#assignment_STedit').modal('show');
+    }
+</script>
+<script>
+    $('#datatable-responsiveSub').dataTable( {
+  "searching": true
+} );
+</script>
 <div class="col-md-12 col-sm-12  ">
     <div class="x_panel">
         <div class="x_title">
@@ -67,11 +75,19 @@
 												<tr>
 													<td>{{=db(db.Subjects.id == Assignment.subject_assign).select(db.Subjects.Subject_Name)[0].Subject_Name}}</td>
 													<td>{{=Assignment.Assignemnt_title}}</td>
-													<td>{{=Assignment.FinalSubmission_date}}</td>
+													<td>
+                                                        <a onclick="modal_value(this)" data-toggle="modal" data-id="{{=Assignment.id}}" data-toggle="modal" class="identifyingClass" href="#assignment_edit">{{=Assignment.FinalSubmission_date}}</a>
+                                                    </td>
 													<td><a href="{{=URL(f='download', args =Assignment.Origianl_content)}}">{{=Assignment.Assignemnt_title}}</a> </td>
 													<td>{{=db(db.auth_user.id == Assignment.created_by).select(db.auth_user.first_name)[0].first_name}}</td>
 													<td>{{=Assignment.created_on}}</td>
-													<td><a href="{{=URL('assignments','delete_assignments',vars=dict(assing_id=Assignment.id,batch_name=batch_name,batch_id=batch_id))}}"><i class="fa fa-trash-o" aria-hidden="true"></i></a></td>
+													<td>
+                                                        {{ if db(db.Assignment_content.Assignemnt_title == Assignment.id).select():}}
+                                                            <a href="#"><i class="fa fa-minus" aria-hidden="true"></i></a>
+                                                        {{else:}}
+                                                           <a href="{{=URL('assignments','delete_assignments',vars=dict(assing_id=Assignment.id,batch_name=batch_name,batch_id=batch_id))}}"><i class="fa fa-trash-o" aria-hidden="true"></i></a>
+                                                        {{pass}}
+                                                   </td>
 												</tr>
 											{{pass}}
                                     {{pass}}
@@ -101,6 +117,7 @@
 										<thead>
 											<tr>
 												<th>Name</th>
+												<th>SBS ID</th>
 												<th>Assignment Title</th>
 												<th>Original Content</th>
                                                 <th>Submission Date</th>
@@ -114,16 +131,27 @@
                                                 {{if db(db.Assignments.student_id == student.id).select():}}
                                                     {{student_assigns = db(db.Assignments.student_id == student.id).select()}}
                                                     {{for student_assign in student_assigns:}}
-												<tr>
-													<td>{{=student.F_Name}} {{=student.L_Name}}</td>
-													<td>{{=student_assign.Assignemnt_title}}</td>
-													<td><a href="{{=URL(f='download', args = student_assign.Origianl_content)}}">{{=student_assign.Assignemnt_title}}</a> </td>
-                                                    <td>{{=student_assign.FinalSubmission_date}}</td>
-													<td>{{=db(db.auth_user.id == student_assign.created_by).select(db.auth_user.first_name)[0].first_name}}</td>
-													<td>{{=student_assign.created_on}}</td>
-													<td><a href="{{=URL('assignments','delete_assignments',vars=dict(assing_id=Assignment.id,batch_name=batch_name,batch_id=batch_id))}}"><i class="fa fa-trash-o" aria-hidden="true"></i></a></td>
-												</tr>
-                                                {{pass}}
+                                                        <tr>
+                                                            <td>{{=student.F_Name}} {{=student.L_Name}}</td>
+                                                            <td>{{=student.Student_colgID}}</td>
+                                                            <td>{{=student_assign.Assignemnt_title}}</td>
+                                                            <td><a href="{{=URL(f='download', args = student_assign.Origianl_content)}}">{{=student_assign.Assignemnt_title}}</a> </td>
+                                                            <td>
+                                                                <a onclick="modal_STvalue(this)" data-toggle="modal" data-id="{{=student_assign.id}}" data-toggle="modal" class="identifyingClass" href="#assignment_STedit" >
+                                                                {{=student_assign.FinalSubmission_date}}
+                                                                </a>
+                                                            </td>
+                                                            <td>{{=db(db.auth_user.id == student_assign.created_by).select(db.auth_user.first_name)[0].first_name}}</td>
+                                                            <td>{{=student_assign.created_on}}</td>
+                                                            <td>
+                                                                {{ if db(db.Assignment_content.Assignemnt_title == student_assign.id).select():}}
+                                                                <a href="{{=URL('assignments','delete_assignments',vars=dict(assing_id=student_assign.id,batch_name=batch_name,batch_id=batch_id))}}"><i class="fa fa-trash-o" aria-hidden="true"></i></a>
+                                                                {{else:}}
+                                                                    <a href="#"><i class="fa fa-minus" aria-hidden="true"></i></a>
+                                                                {{pass}}
+                                                            </td>
+                                                        </tr>
+                                                    {{pass}}
                                                 {{pass}}
 											{{pass}}
 										</tbody>
@@ -139,10 +167,11 @@
 							<div class="col-sm-12">
 								<div class="card-box table-responsive">
                                     <h6>Assignments submitted by students of {{=batch_name}} batch.</h6>
-									<table id="datatable-responsive" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+									<table id="datatable-responsiveSub" class="table table-striped table-bordered dt-responsive" cellspacing="0" width="100%">
 										<thead>
 											<tr>
 												<th>Name</th>
+												<th>SBS ID</th>
 												<th>Subject</th>
 												<th>Assignment Title</th>
 												<th>Submitted Content</th>
@@ -150,18 +179,25 @@
 											</tr>
 										</thead>
 										<tbody>
-											{{for Assignment in Assignments:}}
-                                                {{for submital in submitals:}}
-                                                    {{if submital.Assignemnt_title == Assignment.id:}}
+                                            {{for submital in submitals:}}
+                                                {{for student in students:}}
+                                                    {{if submital.Student_ID == student.id:}}
+                                                    {{if submital.Assignemnt_title:}}
 												    <tr>
-                                                        {{student = db(db.Student.id == submital.Student_ID).select()}}
-                                                        {{subject = db(db.Assignments.id == submital.Assignemnt_title).select(db.Assignments.subject_assign)[0].subject_assign}}
-													    <td>{{=student[0].F_Name}} {{=student[0].L_Name}}</td>
-													    <td>{{=db(db.Subjects.id == subject).select(db.Subjects.Subject_Name)[0].Subject_Name}}</td>
-                                                        <td>{{=db(db.Assignments.id == submital.Assignemnt_title).select(db.Assignments.Assignemnt_title)[0].Assignemnt_title}}</td>
+                                                        {{source_assignment = db(db.Assignments.id == submital.Assignemnt_title).select().first()}}
+													    <td>{{=student.F_Name}} {{=student.L_Name}}</td>
+                                                        <td>{{=student.Student_colgID}}</td>
+													    <td>{{=db(db.Subjects.id == source_assignment.subject_assign).select(db.Subjects.Subject_Name)[0].Subject_Name}}</td>
+                                                        <td>{{=source_assignment.Assignemnt_title}}</td>
 													    <td><a href="{{=URL(f='download', args = submital.Assignment_file)}}"><i class="fas fa-file-alt"></i></a></td>
-                                                        <td>{{=submital.created_on}}</td>
+                                                        {{last_date = db(db.Assignments.id == submital.Assignemnt_title).select(db.Assignments.FinalSubmission_date)[0].FinalSubmission_date}}
+                                                        {{if submital.Submission_date.date() > last_date:}}
+                                                            <td title="Submitted on: {{=submital.Submission_date.date()}} &#010; Submission Date: {{=last_date}}   " style="color:red;"> Late submission</td>
+                                                        {{else:}}
+                                                            <td> {{=submital.Submission_date}}</td>
+                                                        {{pass}}
 												    </tr>
+                                                    {{pass}}
                                                     {{pass}}
                                                 {{pass}}
 											{{pass}}
@@ -177,7 +213,6 @@
 </div>
 
 <div class="modal fade bs-example-modal-lg" id="batch_addassignment" tabindex="-1" role="dialog" aria-hidden="true">
-
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -189,7 +224,10 @@
                             <input type="hidden"  name="batch_id" value="{{=batch_id}}">
                             <input type="hidden"  name="batch_name" value="{{=batch_name}}">
                             <div class="item form-group">
-                                <label class="col-form-label col-md-3 col-sm-3 label-align" for="assign_title">Asignments Title <span class="required">*</span></label>
+                                <label class="col-form-label col-md-3 col-sm-3 label-align" for="assign_title">
+                                    Asignments Title 
+                                    <span class="required">*</span>
+                                </label>
                                 <div class="col-md-6 col-sm-6 ">
                                     <input type="text" name="assign_title" id="assign_title" required="required" class="form-control ">
                                 </div>
@@ -205,7 +243,9 @@
                                 </div>
                             </div>
                             <div class="item form-group">
-                                <label class="col-form-label col-md-3 col-sm-3 label-align">Date Of Submission <span class="required">*</span>
+                                <label class="col-form-label col-md-3 col-sm-3 label-align">
+                                    Date Of Submission 
+                                    <span class="required">*</span>
                                 </label>
                                 <div class="col-md-6 col-sm-6 ">
                                     <input id="assign_date" class="date-picker form-control" name="assign_date" required="required" type="date">
@@ -213,7 +253,9 @@
                             </div>
 
                             <div class="item form-group">
-                                <label class="col-form-label col-md-3 col-sm-3 label-align">Assignment File <span class="required">*</span>
+                                <label class="col-form-label col-md-3 col-sm-3 label-align">
+                                    Assignment File 
+                                    <span class="required">*</span>
                                 </label>
                                 <div class="col-md-6 col-sm-6 ">
                                     <input id="assign_content" class="date-picker form-control" value="assign_content" name="assign_content" required="required" type="file">
@@ -225,8 +267,7 @@
                                     <button type="submit" class="btn btn-success">Submit</button>
                                 </div>
                             </div>
-
-                        </form>
+                       </form>
             </div>
         </div>
     </div>
@@ -237,14 +278,19 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title" id="myModalLabel2">Add Assignment to Student</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
             </div>
             <div class="modal-body">
                 <form id="demo-form2" data-parsley-validate enctype='multipart/form-data' class="form-horizontal form-label-left" method="post" action="/init/assignments/add_STassignments">
                             <input type="hidden"  name="batch_id" value="{{=batch_id}}">
                             <input type="hidden"  name="batch_name" value="{{=batch_name}}">
                             <div class="item form-group">
-                                <label class="col-form-label col-md-3 col-sm-3 label-align" for="assign_title">Asignments Title <span class="required">*</span></label>
+                                <label class="col-form-label col-md-3 col-sm-3 label-align" for="assign_title">
+                                    Asignments Title 
+                                    <span class="required">*</span>
+                                </label>
                                 <div class="col-md-6 col-sm-6 ">
                                     <input type="text" name="assign_title" id="assign_title" required="required" class="form-control ">
                                 </div>
@@ -252,11 +298,13 @@
                             <div class="item form-group">
                                 <label class="col-form-label col-md-3 col-sm-3 label-align">Student</label>
                                 <div class="col-md-6 col-sm-6 ">
-                                    <select id="student_id" name="student_id" class="form-control">
+                                    <input list="student_id" name="student_id" id="browser" class="form-control">
+                                    <datalist id="student_id" name="student_id">
                                         {{for student in students:}}
-                                            <option value="{{=student.id}}">{{=student.Student_colgID}} {{=student.F_Name}} {{=student.F_Name}}</option>
+                                            <option value="{{=student.id}}">
+                                                {{=student.Student_colgID}} {{=student.F_Name}} {{=student.F_Name}}
                                         {{pass}}
-                                    </select>
+                                    </datalist>
                                 </div>
                             </div>
                             <div class="item form-group">
@@ -270,7 +318,9 @@
                                 </div>
                             </div>
                             <div class="item form-group">
-                                <label class="col-form-label col-md-3 col-sm-3 label-align">Date Of Submission <span class="required">*</span>
+                                <label class="col-form-label col-md-3 col-sm-3 label-align">
+                                    Date Of Submission 
+                                    <span class="required">*</span>
                                 </label>
                                 <div class="col-md-6 col-sm-6 ">
                                     <input id="assign_date" class="date-picker form-control" name="assign_date" required="required" type="date">
@@ -278,7 +328,9 @@
                             </div>
 
                             <div class="item form-group">
-                                <label class="col-form-label col-md-3 col-sm-3 label-align">Assignment File <span class="required">*</span>
+                                <label class="col-form-label col-md-3 col-sm-3 label-align">
+                                    Assignment File 
+                                    <span class="required">*</span>
                                 </label>
                                 <div class="col-md-6 col-sm-6 ">
                                     <input id="assign_content" class="date-picker form-control" value="assign_content" name="assign_content" required="required" type="file">
@@ -298,6 +350,72 @@
     </div>
 </div>
 
+    
+<div class="modal fade bs-example-modal-lg" id="assignment_edit" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel2">Edit Batch Assignment</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <form id="edit_assingmentform" data-parsley-validate class="form-horizontal form-label-left" method="get" action="/init/assignments/edit_assignment">
+                    <div class="item form-group">
+                      <label class="col-form-label col-md-3 col-sm-3 label-align">
+                          Date Of Submission
+                          <span class="required">*</span>
+                      </label>
+                      <div class="col-md-6 col-sm-6 ">
+                        <input id="assign_date" class="date-picker form-control" name="assign_date" required="required" type="date">
+                      </div>
+                    </div>
+                    <input type="hidden" id="assignId" name="assignId" value="">
+                    <input type="hidden" id="batchid" name="batch_id" value="{{=batch_id}}">
+                    <input type="hidden" id="batchname" name="batch_name" value="{{=batch_name}}">
+                    <div class="item form-group">
+                        <div class="col-md-6 col-sm-6 offset-md-3">
+                            <button type="submit" class="btn btn-success">Submit</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+    
+<div class="modal fade bs-example-modal-lg" id="assignment_STedit" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel2">Edit Student Assignment</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+            <div class="modal-body">
+                <form id="edit_assingmentform" data-parsley-validate class="form-horizontal form-label-left" method="get" action="/init/assignments/edit_STassignment">
+                    <div class="item form-group">
+                      <label class="col-form-label col-md-3 col-sm-3 label-align">
+                          Date Of Submission
+                          <span class="required">*</span>
+                      </label>
+                      <div class="col-md-6 col-sm-6 ">
+                        <input id="assign_date" class="date-picker form-control" name="assign_date" required="required" type="date">
+                      </div>
+                    </div>
+                    <input type="hidden" id="assignSTId" name="assignId" value="">
+                    <input type="hidden" id="batchid" name="batch_id" value="{{=batch_id}}">
+                    <input type="hidden" id="batchname" name="batch_name" value="{{=batch_name}}">
+                    <div class="item form-group">
+                        <div class="col-md-6 col-sm-6 offset-md-3">
+                            <button type="submit" class="btn btn-success">Submit</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+    
+    
  <a type="button" href="{{=URL('assignments', 'index')}}" class="btn btn-round btn-info">Back</a>
 
     <!--Select2-->

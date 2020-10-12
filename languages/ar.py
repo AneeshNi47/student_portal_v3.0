@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 {
+' ': ' ',
 '!langcode!': 'ar',
 '!langname!': 'Arabic',
 '"update" is an optional expression like "field1=\'newvalue\'". You cannot update or delete the results of a JOIN': '"update" is an optional expression like "field1=\'newvalue\'". You cannot update or delete the results of a JOIN',
@@ -64,6 +65,7 @@
 'Community': 'المجتمع',
 'Components and Plugins': 'العناصر والإضافات',
 'Config.ini': 'Config.ini',
+'Confirm Password': 'Confirm Password',
 'Content': 'Content',
 'Controller': 'متحكم',
 'Copyright': 'الحقوق',
@@ -170,6 +172,7 @@
 'new record inserted': 'new record inserted',
 'next %s rows': 'next %s rows',
 'No databases in this application': 'No databases in this application',
+'Not Authorized': 'Not Authorized',
 'Notifications': 'Notifications',
 'Number of entries: **%s**': 'Number of entries: **%s**',
 'Object or table name': 'أسم الكائن أو الجدول',
@@ -224,6 +227,7 @@
 'Remember me (for 30 days)': 'تذكرني ( إلى 30 يوم)',
 'Request reset password': 'Request reset password',
 'Reset Password key': 'إعادة ظبط مفتاح كلمة المرور',
+'Retrieve Password': 'Retrieve Password',
 'Role': 'دور',
 'Roles': 'Roles',
 'Rows in Table': 'Rows in Table',

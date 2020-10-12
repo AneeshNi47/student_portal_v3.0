@@ -93,6 +93,7 @@ auth = Auth(db, host_names=configuration.get('host.names'))
 # create all tables needed by auth, maybe add a list of extra fields
 # -------------------------------------------------------------------------
 auth.settings.extra_fields['auth_user'] = []
+auth.settings.expiration = 3600
 auth.define_tables(username=True, signature=False)
 
 # -------------------------------------------------------------------------

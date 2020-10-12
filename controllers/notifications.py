@@ -71,11 +71,12 @@ def add_notification():
         db.commit()
         action = "notification to Batch {}" + format(request.vars.notify_batch)
     if request.vars.notify_student != None:
+        notify_stud = db(db.Student.id == request.vars.notify_student).select().first()
         db.Notifications.insert(notif_use=request.vars.notify_type,
                                 Topic=request.vars.notify_topic,
                                 Message_n=request.vars.notify_remarks,
                                 Given_by=auth.user.id,
-                                Given_to_S=request.vars.notify_student,
+                                Given_to_S=notify_stud.Student_appID,
                                 Given_to_ALL=None)
         db.commit()
         action = "notification to student {}" + format(request.vars.notify_student)

@@ -4,7 +4,12 @@ def index():
         locations = db(db.C_Location).select()
         courses = db(db.Course).select()
         specializations = db(db.Specialization).select()
-        batches = db(db.Batch).select()
+        if auth.user.id == 1149:
+            batches = db(db.Batch.id.belongs((64,76))).select()
+        elif auth.user.id == 1583:
+            batches = db(db.Batch.id==76).select()
+        else:
+            batches = db(db.Batch).select()
     elif auth.has_membership(3):
         student = db(db.Student.Student_appID == auth.user.id).select()
         batch = db(db.Batch.id == student[0].Batch).select()
@@ -60,11 +65,15 @@ def add_grade():
     student_id = request.vars.student_id
     mark = int(request.vars.smeGrade_marks)
     grade = None
-    course = db(db.Batch.id == batch_id).select(db.Batch.Batch_Course)[0].Batch_Course
-    if course not in [1,5,6]:
-        grade = graderNonBBA(mark)
+    subject = db(db.Subjects.id == request.vars.grade_sub).select().first()
+    if subject.Subject_Name in ["Comprehensive Exam","Module 2 - Information Technologies for Business Research"]:
+        grade = DBA_special(mark)
     else:
-        grade = graderBBA(mark)
+        course = db(db.Batch.id == batch_id).select(db.Batch.Batch_Course)[0].Batch_Course
+        if course not in [1,5,6]:
+            grade = graderNonBBA(mark)
+        else:
+            grade = graderBBA(mark)
     db.Grades.insert(Student_id=student_id,
                     Semester_id=sem_id,
                     Mark=request.vars.smeGrade_marks,
@@ -115,6 +124,15 @@ def del_grade():
     db.commit()
     redirect(URL('grades','semester_grade',vars=dict(batch_id=batch_id,semester_id=sem_id,student_id=student_id)))
     return locals()
+
+@auth.requires(auth.has_membership('Examiner') or auth.has_membership('Admin'))
+def DBA_special(mark):
+    if mark > 60:
+        grade = "Pass"
+    elif mark < 60:
+        grade = "Fail"
+    return grade
+
 
 @auth.requires(auth.has_membership('Examiner') or auth.has_membership('Admin'))
 def graderBBA(mark):
